@@ -1,13 +1,22 @@
 #!/bin/bash
 
-mkdir -p /tmp/rom # Where to sync source
+mkdir -p /tmp/rom
 cd /tmp/rom
 
-# Repo init command, that -device,-mips,-darwin,-notdefault part will save you more time and storage to sync, add more according to your rom and choice. Optimization is welcomed! Let's make it quit, and with depth=1 so that no unnecessary things.
-repo init -q --no-repo-verify --depth=1 -u git://github.com/AospExtended/manifest.git -b 11.x -g default,-device,-mips,-darwin,-notdefault
+git config --global user.name GeoPD
+git config --global user.email geoemmanuelpd2001@gmail.com
 
-# Clone local manifest! So that no need to manually git clone repos or change hals, you can use normal git clone or rm and re clone, they will cost little more time, and you may get timeout! Let's make it quit and depth=1 too.
-git clone https://github.com/Apon77Lab/android_.repo_local_manifests.git --depth 1 -b aex .repo/local_manifests -q
+# Build environment
+git clone https://github.com/akhilnarang/scripts
+bash scripts/setup/android_build_env.sh && rm -rf scripts
 
-# Sync source with -q, no need unnecessary messages, you can remove -q if want! try with -j30 first, if fails, it will try again with -j8
-repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j 30 -q || repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j 8 -q
+# Repo init and sync
+repo init --no-repo-verify --depth=1 -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
+repo sync --no-tags --no-clone-bundle --current-branch --force-sync --optimized-fetch -j10
+
+# clone needed repos
+git clone https://github.com/geopd/device_xiaomi_sakura.git -b dot-11 device/xiaomi/sakura
+git clone --depth=1 https://github.com/geopd/vendor_xiaomi_sakura.git -b lineage-18.0 vendor/xiaomi
+git clone --depth=1 https://github.com/darkhz/revvz_sakura -b beta-4.9-Q kernel/xiaomi/msm8953 
+git clone --depth=1 https://github.com/geopd/vendor_custom_prebuilts -b master vendor/custom/prebuilts
+git clone --depth=1 https://github.com/mvaisakh/gcc-arm64.git -b gcc-master prebuilts/gcc/linux-x86/aarch64/aarch64-elf

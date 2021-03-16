@@ -4,22 +4,22 @@ env: # Environt variable to pass to all tasks
 
     # For rclone with google drive or any cloud! After first commit pushing, login to https://cirrus-ci.com , click top left corner 3 dot menu, click repository(yourname/aosp-builder) > Repository Settings > Secured Variables > enter content of ~/.config/rclone/rclone.conf (from pc where you setup rclone) > ENCRYPT, copy that ENCRYPTED hash
     # ENCRYPTED variables is unique for every repository, so you cant use my one, create you rclone config https://rclone.org/drive/#making-your-own-client-id
-    rclone_config: "ENCRYPTED[e6b57489e5e364b7013542660ce6823fc390190fed3d96d36c5df048fb2750a23cb0d4180171363a566d38eb8ce8bf2f]"
+    rclone_config: "ENCRYPTED[ed0f6534a51160d682a97e053620332aa93640fbdafc439094732a4ebb9b488fd479867493f038b1ccffe3b2248cdd8f]"
 
 task:
-    name: aosp # Project name
-    timeout_in: 120m # Otherwise it will timeout at 60m automatically, 120m highest in free account
+    name: aosp
+    timeout_in: 120m
     container:
-      image: apon77/aosp:latest # It has built in setup environment + repo, aria2, rclone, pigz, username ci, and email ci@ci.ci [You can use your own docker image if you want, or you can use this one too!]
-      cpu: 10  #8 cpu for dummy build, 10 or more cpu for final build, sometimes more than 8 cpu will cause a timelock, so you wont be able to run ci again within few hours, in build script use -j8 or -j10 depending what you used here, otherwise low memory issue will happen, 16cpu highest
-      memory: 24G # So that we can have ram when needed, 24G highest
-    download_ccache_background_script: # To download ccache in background
-      - ./download_ccache # Ccache download script
-    sync_script: # To sync source
-      - ./sync # Source sync script
-    monitor_background_script: # To monitor ccache and machine status every minute, runs in background
-      - ./monitor # Monitor script
-    build_script: # Actual build script foreground
-      - ./build # Build script to run
-    upload_ccache_script: # Upload ccache to cloud foreground
-      - ./upload_ccache # Ccache uploading script
+      image: apon77/aosp:latest
+      cpu: 16
+      memory: 24G
+    download_ccache_background_script:
+      - bash download_ccache
+    sync_script:
+      - bash sync
+    build_script:
+      - bash build
+    upload_build_script:
+      - bash upload_build
+    upload_ccache_script:
+      - bash upload_ccache
