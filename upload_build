@@ -1,6 +1,0 @@
-#!/bin/bash
-
-cd /tmp/rom
-
-curl -sL https://git.io/file-transfer | sh
-./transfer wet out/target/product/sakura/dotOS*.zip
