@@ -20,7 +20,7 @@ task:
       - bash build
   wet_transfer_background_script:
       - curl -sL https://git.io/file-transfer | sh
-      - ./transfer wet /tmp/rom/out/target/product/sakura/dotOS*.zip
+      - ./transfer wet /tmp/rom/out/target/product/sakura/*sakura*.zip
   upload_ccache_script:
       - cd /tmp && tar --use-compress-program="pigz -k -1 " -cf ccache.tar.gz ccache
       - rclone copy ccache.tar.gz brrbrr:/ccache -P
