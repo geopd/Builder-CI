@@ -38,6 +38,16 @@ case "$rom" in
     ;;
 esac
 
+BUILD_START=$(date +"%s")
+
+telegram_buildstart() {
+    curl -s -X POST "https://api.telegram.org/bot$BOTTOKEN/sendMessage" -d chat_id="$CHATID" \
+    -d "parse_mode=html" \
+    -d text="$1"
+}
+
+telegram_buildstart "<b>$rom Build Triggered</b>%0A<b>Date: </b><code>$(TZ=Asia/Kolkata date +"%d-%m-%Y %T")</code>"
+
 export CCACHE_DIR=/tmp/ccache
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
@@ -53,3 +63,30 @@ case "$rom" in
     exit 1
     ;;
 esac
+
+BUILD_END=$(date +"%s")
+DIFF=$((BUILD_END - BUILD_START))
+
+telegram_build() {
+ curl --progress-bar -F document=@"$1" "https://api.telegram.org/bot$BOTTOKEN/sendDocument" \
+ -F chat_id="$CHATID" \
+ -F "disable_web_page_preview=true" \
+ -F "parse_mode=Markdown" \
+ -F caption="$2"
+}
+
+telegram_post(){
+ if [ -f $(pwd)/out/target/product/sakura/*sakura*.zip ]; then
+	ZIP="$(echo "$(pwd)/out/target/product/sakura/*sakura*.zip")"
+	MD5CHECK=$(md5sum $zip | cut -d' ' -f1)
+	telegram_build $ZIP "*✅ Build finished after $((DIFF / 3600)) hour(s) and $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds*
+	MD5 Checksum:  $MD5CHECK
+	_Date:  $(TZ=Asia/Kolkata date +"%d-%m-%Y %T")_"
+ else
+	LOG="$(echo "$(pwd)/out/build_error")"
+	telegram_build $LOG "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
+	_Date:  $(TZ=Asia/Kolkata date +"%d-%m-%Y %T")_"
+ fi
+}
+
+telegram_post
