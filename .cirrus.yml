@@ -1,10 +1,10 @@
 env:
     CIRRUS_CLONE_DEPTH: 1
     CIRRUS_WORKING_DIR: "/tmp/ci"
-    rclone_config: "ENCRYPTED[ed0f6534a51160d682a97e053620332aa93640fbdafc439094732a4ebb9b488fd479867493f038b1ccffe3b2248cdd8f]"
-    TOKEN: "ENCRYPTED[59ee48ff82a0d9f9954eb1fa287a2e4212f9c34d3b44a6547cdb07b27350be13e5de814e1d9ef4ef4b6ca0973d7d0ea8]"
-    CHATID: "ENCRYPTED[07b2eff034b28582bf34501361ac0c6b9d17cf8a38439856eec50f996cdefccabd6e19facc598d8a6e6387739fd1e9e7]"
-    BOTTOKEN: "ENCRYPTED[c7109b996b581d5fded4b9efc45eb7517c58bb3480ad2bd5fe90074ba3a484777dd6d6418f6a1ba50c35b1bff1c4851b]"
+    rclone_config: "ENCRYPTED[a7d880ca2e931e568ca228e7171ee3012697c543ce67da5fe7b56ba7ec5a3be0023c8cd4847d038d2e585e1119ba0bc3]"
+    TOKEN: "ENCRYPTED[97d6b218e52d027956a63019b9072bd2406bf19dd4c762a46681570c493b7919b43a27b37ec2c402412920775c6f67bb]"
+    CHATID: "ENCRYPTED[d26c8dc45079ba8a1bd065b43e4c7c332aad1fbe59e8e2c872cdc0cfc2e4cb6b0a417b2713535653e1100b05cdf16352]"
+    BOTTOKEN: "ENCRYPTED[5f66a3ce45010e58a5c3b14da152bd165672dc117b35d4452b33ff7b19aad5d9444f91e46c188247590c0fab26d0d971]"
 
 task:
   container:
@@ -20,9 +20,6 @@ task:
       - rclone copy brrbrr:/ccache/ccache.tar.gz /tmp -P && tar xf ccache.tar.gz
   build_script:
       - bash build
-  wet_transfer_background_script:
-      - curl -sL https://git.io/file-transfer | sh
-      - ./transfer wet /tmp/rom/out/target/product/sakura/*sakura*.zip
   upload_ccache_script:
       - cd /tmp && tar --use-compress-program="pigz -k -1 " -cf ccache.tar.gz ccache
       - rclone copy ccache.tar.gz brrbrr:/ccache -P
