@@ -6,7 +6,7 @@ cd /tmp/rom
 git config --global user.name GeoPD
 git config --global user.email geoemmanuelpd2001@gmail.com
 
-export rom=EvolutionX
+export rom=dotOS
 
 rom_one(){
  repo init --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
@@ -76,7 +76,7 @@ telegram_build() {
 }
 
 telegram_post(){
- if [ -f $(pwd)/out/target/product/sakura/*sakura*.zip ]; then
+ if [[ -f $(pwd)/out/target/product/sakura/*sakura*.zip ]]; then
 	curl -sL https://git.io/file-transfer | sh
 	ZIP="$(echo "$(pwd)/out/target/product/sakura/*sakura*.zip")"
 	MD5CHECK=$(md5sum $zip | cut -d' ' -f1)
