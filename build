@@ -38,6 +38,7 @@ case "$rom" in
     ;;
 esac
 
+BUILD_DATE=$(date +"%Y%m%d")
 BUILD_START=$(date +"%s")
 
 telegram_message() {
@@ -76,14 +77,14 @@ telegram_build() {
 }
 
 telegram_post(){
- if [[ -f $(pwd)/out/target/product/sakura/*sakura*.zip ]]; then
+ if [ -f $(pwd)/out/target/product/sakura/*sakura*"${BUILD_DATE}"*.zip ]; then
 	curl -sL https://git.io/file-transfer | sh
-	ZIP="$(echo "$(pwd)/out/target/product/sakura/*sakura*.zip")"
-	MD5CHECK=$(md5sum $zip | cut -d' ' -f1)
-	WET=$(echo "./transfer wet $(pwd)/out/target/product/sakura/*sakura*.zip")
+	ZIP="$(echo "$(pwd)/out/target/product/sakura/*sakura*"${BUILD_DATE}"*.zip")"
+	MD5CHECK=$(md5sum $ZIP | cut -d' ' -f1)
+	WET=$(echo "./transfer wet $ZIP")
 	ZIPNAME=$(echo "$($WET |  cut -s -d'/' -f 8)")
 	DWD=$(echo "$($WET | sed '$!d' | cut -d' ' -f3)")
-	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>$ZIPNAME</code>%0A%0A<b>MD5 Checksum: </b><code>$MD5CHECK</code>%0A<b>Download Link: </b><code>$DWD</code>%0A<b>Date: </b><code>$(TZ=Asia/Kolkata date +"%d-%m-%Y %T")</code>"
+	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>$ZIPNAME</code>%0A%0A<b>MD5 Checksum: </b><code>$MD5CHECK</code>%0A<b>Download Link: </b><code>$DWD</code>%0A%0A<b>Date: </b><code>$(TZ=Asia/Kolkata date +"%d-%m-%Y %T")</code>"
  else
 	LOG="$(echo "$(pwd)/out/build_error")"
 	telegram_build $LOG "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
