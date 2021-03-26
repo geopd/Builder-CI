@@ -9,7 +9,7 @@ env:
 task:
   container:
     image: geopd/builder:update
-    cpu: 15
+    cpu: 16
     memory: 24G
 
   name: rom
@@ -19,7 +19,7 @@ task:
       - echo "$rclone_config" > ~/.config/rclone/rclone.conf
       - rclone copy brrbrr:/ccache/ccache.tar.gz /tmp -P && tar xf ccache.tar.gz
   build_script:
-      - bash build
+      - bash build.sh
   upload_ccache_script:
       - cd /tmp && tar --use-compress-program="pigz -k -1 " -cf ccache.tar.gz ccache
       - rclone copy ccache.tar.gz brrbrr:/ccache -P
