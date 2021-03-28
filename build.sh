@@ -6,7 +6,7 @@ cd /tmp/rom
 git config --global user.name GeoPD
 git config --global user.email geoemmanuelpd2001@gmail.com
 
-export rom=dotOS
+export rom=dotOS-R
 
 rom_one(){
  repo init --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
