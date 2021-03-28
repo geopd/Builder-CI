@@ -5,12 +5,13 @@ env:
     TOKEN: "ENCRYPTED[97d6b218e52d027956a63019b9072bd2406bf19dd4c762a46681570c493b7919b43a27b37ec2c402412920775c6f67bb]"
     CHATID: "ENCRYPTED[d26c8dc45079ba8a1bd065b43e4c7c332aad1fbe59e8e2c872cdc0cfc2e4cb6b0a417b2713535653e1100b05cdf16352]"
     BOTTOKEN: "ENCRYPTED[5f66a3ce45010e58a5c3b14da152bd165672dc117b35d4452b33ff7b19aad5d9444f91e46c188247590c0fab26d0d971]"
+    GIT_COOKIES: "ENCRYPTED[8a511e77b1df0239dccd8a670c98ae6454bcedaea68bc4722fbd7f0f6e91bf7670332659ee9ea90c199dfe52b3d9b637]"
 
 task:
   container:
     image: geopd/builder:update
     cpu: 16
-    memory: 24G
+    memory: 32G
 
   name: rom
   timeout_in: 120m
@@ -19,7 +20,7 @@ task:
       - echo "$rclone_config" > ~/.config/rclone/rclone.conf
       - rclone copy brrbrr:/ccache/ccache.tar.gz /tmp -P && tar xf ccache.tar.gz
   build_script:
-      - bash build.sh
+      - ionice -c 2 -n 0 bash build.sh
   upload_ccache_script:
       - cd /tmp && tar --use-compress-program="pigz -k -1 " -cf ccache.tar.gz ccache
       - rclone copy ccache.tar.gz brrbrr:/ccache -P

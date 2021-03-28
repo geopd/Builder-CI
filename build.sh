@@ -10,7 +10,7 @@ export rom=dotOS-R
 
 rom_one(){
  repo init --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
- repo sync --no-tags --no-clone-bundle --current-branch --force-sync --optimized-fetch -j16
+ schedtool -B -n 0 -e ionice -n 0 "$(which repo)" sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
  git clone https://$TOKEN@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-11 device/xiaomi/sakura
  git clone https://$TOKEN@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
  . build/envsetup.sh && lunch dot_sakura-userdebug
@@ -18,7 +18,7 @@ rom_one(){
 
 rom_two(){
  repo init --no-repo-verify -u https://github.com/Evolution-X/manifest -b elle -g default,-device,-mips,-darwin,-notdefault
- repo sync --no-tags --no-clone-bundle --current-branch --force-sync --optimized-fetch -j16
+ schedtool -B -n 0 -e ionice -n 0 "$(which repo)" sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
  git clone https://$TOKEN@github.com/geopd/device_xiaomi_sakura_TEST.git -b elle device/xiaomi/sakura
  git clone https://$TOKEN@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
  rm -rf vendor/gms && git clone https://gitlab.com/geopdgitlab/vendor_gapps -b eleven vendor/gms
@@ -27,7 +27,7 @@ rom_two(){
 
 rom_three(){
  repo init --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
- repo sync --no-tags --no-clone-bundle --current-branch --force-sync --optimized-fetch -j16
+ schedtool -B -n 0 -e ionice -n 0 "$(which repo)" sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
  git clone https://$TOKEN@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-R device/xiaomi/sakura
  git clone https://$TOKEN@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
  rm -rf hardware/qcom-caf/msm8996/audio hardware/qcom-caf/msm8996/display hardware/qcom-caf/msm8996/media
@@ -40,6 +40,9 @@ rom_three(){
 git clone https://$TOKEN@github.com/geopd/kernel_xiaomi_msm8953 -b beta-4.9-Q kernel/xiaomi/msm8953 
 git clone https://github.com/geopd/vendor_custom_prebuilts -b master vendor/custom/prebuilts
 git clone https://github.com/mvaisakh/gcc-arm64.git -b gcc-master prebuilts/gcc/linux-x86/aarch64/aarch64-elf
+
+echo "${GIT_COOKIES}" > ~/git_cookies.sh
+bash ~/git_cookies.sh
 
 case "$rom" in
  "dotOS") rom_one
@@ -71,11 +74,11 @@ ccache -M 20G && ccache -o compression=true && ccache -z
 make api-stubs-docs && make system-api-stubs-docs && make test-api-stubs-docs
 
 case "$rom" in
- "dotOS") make bacon -j20
+ "dotOS") make bacon -j24
     ;;
- "EvolutionX") mka bacon -j20
+ "EvolutionX") mka bacon -j24
     ;;
- "dotOS-R") make bacon -j20
+ "dotOS-R") make bacon -j24
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -110,3 +113,4 @@ telegram_post(){
 }
 
 telegram_post
+ccache -s
