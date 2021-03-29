@@ -9,7 +9,7 @@ git config --global user.email geoemmanuelpd2001@gmail.com
 export rom=dotOS-R
 
 rom_one(){
- repo init --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
+ repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
  schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
  git clone https://$TOKEN@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-11 device/xiaomi/sakura
  git clone https://$TOKEN@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
@@ -17,7 +17,7 @@ rom_one(){
 }
 
 rom_two(){
- repo init --no-repo-verify -u https://github.com/Evolution-X/manifest -b elle -g default,-device,-mips,-darwin,-notdefault
+ repo init --depth=1 --no-repo-verify -u https://github.com/Evolution-X/manifest -b elle -g default,-device,-mips,-darwin,-notdefault
  schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
  git clone https://$TOKEN@github.com/geopd/device_xiaomi_sakura_TEST.git -b elle device/xiaomi/sakura
  git clone https://$TOKEN@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
@@ -26,7 +26,7 @@ rom_two(){
 }
 
 rom_three(){
- repo init --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
+ repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
  schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
  git clone https://$TOKEN@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-R device/xiaomi/sakura
  git clone https://$TOKEN@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
@@ -103,7 +103,7 @@ telegram_post(){
 	MD5CHECK=$(md5sum $ZIP | cut -d' ' -f1)
 	ZIPNAME=$(echo $ZIP | cut -s -d'/' -f8)
 	DWD=$TDRIVE$ZIPNAME
-	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>$ZIPNAME</code>%0A%0A<b>MD5 Checksum: </b><code>$MD5CHECK</code>%0A%0A<b>Download Link: </b><code>$DWD</code>%0A%0A<b>Date: </b><code>$(TZ=Asia/Kolkata date +"%d-%m-%Y %T")</code>"
+	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>$ZIPNAME</code>%0A%0A<b>MD5 Checksum: </b><code>$MD5CHECK</code>%0A%0A<b>Download Link: </b><a href='$DWD'>$DWD</a>%0A%0A<b>Date: </b><code>$(TZ=Asia/Kolkata date +"%d-%m-%Y %T")</code>"
  else
 	LOG="$(echo "$(pwd)/out/build_error")"
 	telegram_build $LOG "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
