@@ -10,7 +10,7 @@ export rom=dotOS-R
 
 rom_one(){
  repo init --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
- schedtool -B -n 0 -e ionice -n 0 "$(which repo)" sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
+ schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
  git clone https://$TOKEN@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-11 device/xiaomi/sakura
  git clone https://$TOKEN@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
  . build/envsetup.sh && lunch dot_sakura-userdebug
@@ -18,7 +18,7 @@ rom_one(){
 
 rom_two(){
  repo init --no-repo-verify -u https://github.com/Evolution-X/manifest -b elle -g default,-device,-mips,-darwin,-notdefault
- schedtool -B -n 0 -e ionice -n 0 "$(which repo)" sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
+ schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
  git clone https://$TOKEN@github.com/geopd/device_xiaomi_sakura_TEST.git -b elle device/xiaomi/sakura
  git clone https://$TOKEN@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
  rm -rf vendor/gms && git clone https://gitlab.com/geopdgitlab/vendor_gapps -b eleven vendor/gms
@@ -27,7 +27,7 @@ rom_two(){
 
 rom_three(){
  repo init --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
- schedtool -B -n 0 -e ionice -n 0 "$(which repo)" sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
+ schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
  git clone https://$TOKEN@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-R device/xiaomi/sakura
  git clone https://$TOKEN@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
  rm -rf hardware/qcom-caf/msm8996/audio hardware/qcom-caf/msm8996/display hardware/qcom-caf/msm8996/media
@@ -74,11 +74,11 @@ ccache -M 20G && ccache -o compression=true && ccache -z
 make api-stubs-docs && make system-api-stubs-docs && make test-api-stubs-docs
 
 case "$rom" in
- "dotOS") make bacon -j24
+ "dotOS") make bacon -j18
     ;;
- "EvolutionX") mka bacon -j24
+ "EvolutionX") mka bacon -j18
     ;;
- "dotOS-R") make bacon -j24
+ "dotOS-R") make bacon -j18
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -87,6 +87,7 @@ esac
 
 BUILD_END=$(date +"%s")
 DIFF=$((BUILD_END - BUILD_START))
+ZIP=$(pwd)/out/target/product/sakura/*sakura*"$BUILD_DATE"*.zip
 
 telegram_build() {
  curl --progress-bar -F document=@"$1" "https://api.telegram.org/bot$BOTTOKEN/sendDocument" \
@@ -97,14 +98,12 @@ telegram_build() {
 }
 
 telegram_post(){
- if [ -f $(pwd)/out/target/product/sakura/*sakura*"${BUILD_DATE}"*.zip ]; then
-	curl -sL https://git.io/file-transfer | sh
-	ZIP="$(echo "$(pwd)/out/target/product/sakura/*sakura*"${BUILD_DATE}"*.zip")"
+ if [ -f $ZIP ]; then
+	rclone copy $ZIP brrbrr:rom -P
 	MD5CHECK=$(md5sum $ZIP | cut -d' ' -f1)
-	WET=$(echo "./transfer wet $ZIP")
-	ZIPNAME=$(echo "$($WET |  cut -s -d'/' -f 8)")
-	DWD=$(echo "$($WET | sed '$!d' | cut -d' ' -f3)")
-	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>$ZIPNAME</code>%0A%0A<b>MD5 Checksum: </b><code>$MD5CHECK</code>%0A<b>Download Link: </b><code>$DWD</code>%0A%0A<b>Date: </b><code>$(TZ=Asia/Kolkata date +"%d-%m-%Y %T")</code>"
+	ZIPNAME=$(echo $ZIP | cut -s -d'/' -f8)
+	DWD=$TDRIVE$ZIPNAME
+	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>$ZIPNAME</code>%0A%0A<b>MD5 Checksum: </b><code>$MD5CHECK</code>%0A%0A<b>Download Link: </b><code>$DWD</code>%0A%0A<b>Date: </b><code>$(TZ=Asia/Kolkata date +"%d-%m-%Y %T")</code>"
  else
 	LOG="$(echo "$(pwd)/out/build_error")"
 	telegram_build $LOG "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
