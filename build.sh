@@ -37,7 +37,7 @@ rom_three(){
  . build/envsetup.sh && lunch dot_sakura-userdebug
 }
 
-git clone https://$TOKEN@github.com/geopd/kernel_xiaomi_msm8953 -b beta-4.9-Q kernel/xiaomi/msm8953 
+git clone https://$TOKEN@github.com/geopd/kernel_xiaomi_msm8953 -b test kernel/xiaomi/msm8953 
 git clone https://github.com/geopd/vendor_custom_prebuilts -b master vendor/custom/prebuilts
 git clone https://github.com/mvaisakh/gcc-arm64.git -b gcc-master prebuilts/gcc/linux-x86/aarch64/aarch64-elf
 
