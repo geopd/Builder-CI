@@ -1,9 +1,9 @@
 task:
   name: rom
-  timeout_in: 120m
+  timeout_in: 100m
   container:
     dockerfile: Dockerfile
-    cpu: 12
+    cpu: 15
     memory: 24G
   environment:
     CIRRUS_CLONE_DEPTH: 1
@@ -17,9 +17,9 @@ task:
   download_ccache_background_script:
       - cd /tmp && mkdir -p ~/.config/rclone
       - echo "$rclone_config" > ~/.config/rclone/rclone.conf
-      - rclone copy brrbrr:rom/ccache/ccache.tar.gz /tmp -P && tar xf ccache.tar.gz
+      - rclone copy brrbrr:ccache/ccache.tar.gz /tmp -P && tar xf ccache.tar.gz
   build_script:
       - bash build.sh
   upload_ccache_script:
       - cd /tmp && tar --use-compress-program="pigz -k -1 " -cf ccache.tar.gz ccache
-      - rclone copy ccache.tar.gz brrbrr:rom/ccache -P
+      - rclone copy ccache.tar.gz brrbrr:ccache -P

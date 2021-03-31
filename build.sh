@@ -56,6 +56,7 @@ case "$rom" in
     ;;
 esac
 
+export TZ=Asia/Kolkata
 BUILD_DATE=$(date +"%Y%m%d")
 BUILD_START=$(date +"%s")
 
@@ -103,7 +104,7 @@ telegram_post(){
 	MD5CHECK=$(md5sum $ZIP | cut -d' ' -f1)
 	ZIPNAME=$(echo $ZIP | cut -s -d'/' -f8)
 	DWD=$TDRIVE$ZIPNAME
-	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>$ZIPNAME</code>%0A%0A<b>MD5 Checksum: </b><code>$MD5CHECK</code>%0A%0A<b>Download Link: </b><a href='$DWD'>$DWD</a>%0A%0A<b>Date: </b><code>$(TZ=Asia/Kolkata date +"%d-%m-%Y %T")</code>"
+	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>$ZIPNAME</code>%0A%0A<b>MD5 Checksum: </b><code>$MD5CHECK</code>%0A%0A<b>Download Link: </b><a href='$DWD'>$DWD</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
  else
 	LOG="$(echo "$(pwd)/out/build_error")"
 	telegram_build $LOG "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
