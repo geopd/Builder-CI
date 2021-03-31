@@ -10,5 +10,8 @@ RUN apt-get -yqq update \
     && chmod a+rx /usr/local/bin/repo \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
+ENV TZ=Asia/Kolkata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 VOLUME ["/tmp/ccache", "/tmp/rom"]
 ENTRYPOINT ["/bin/bash"]

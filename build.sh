@@ -56,7 +56,6 @@ case "$rom" in
     ;;
 esac
 
-export TZ=Asia/Kolkata
 BUILD_DATE=$(date +"%Y%m%d")
 BUILD_START=$(date +"%s")
 
@@ -66,7 +65,7 @@ telegram_message() {
     -d text="$1"
 }
 
-telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>$(TZ=Asia/Kolkata date +"%d-%m-%Y %T")</code>"
+telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
 
 export CCACHE_DIR=/tmp/ccache
 export CCACHE_EXEC=$(which ccache)
@@ -108,7 +107,7 @@ telegram_post(){
  else
 	LOG="$(echo "$(pwd)/out/build_error")"
 	telegram_build $LOG "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
-	_Date:  $(TZ=Asia/Kolkata date +"%d-%m-%Y %T")_"
+	_Date:  $(date +"%d-%m-%Y %T")_"
  fi
 }
 
