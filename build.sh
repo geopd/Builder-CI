@@ -47,6 +47,7 @@ rom_four(){
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_display -b 11.0 hardware/qcom-caf/msm8996/display
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_media -b 11.0 hardware/qcom-caf/msm8996/media
  git clone https://bitbucket.org/syberia-project/external_motorola_faceunlock -b 11.0 external/motorola/faceunlock
+ git clone https://github.com/LineageOS/android_vendor_qcom_opensource_healthd-ext -b lineage-18.1 vendor/qcom/opensource/healthd-ext
  sed -i '677s/private int mTorchActionMode;//g' fra*/ba*/ser*/cor*/ja*/com/and*/ser*/pol*/PhoneWindowManager.java # for the betterment of society1
  export SKIP_ABI_CHECKS=true # for the betterment of society2
  . build/envsetup.sh && lunch octavi_sakura-userdebug
@@ -87,8 +88,7 @@ telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>
 export CCACHE_DIR=/tmp/ccache
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
-ccache -M 20G && ccache -o compression=true && ccache -z
-make api-stubs-docs && make system-api-stubs-docs && make test-api-stubs-docs
+ccache -M 50G && ccache -z
 
 case "${rom}" in
  "dotOS") make bacon -j18
@@ -108,7 +108,7 @@ ls -a $(pwd)/out/target/product/sakura/
 
 BUILD_END=$(date +"%s")
 DIFF=$((BUILD_END - BUILD_START))
-ZIP=$(pwd)/out/target/product/sakura/*sakura*"${BUILD_DATE}"*.zip
+ZIP=$(find $(pwd)/out/target/product/sakura/ -name "*sakura*"${BUILD_DATE}"*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
 
 telegram_build() {
  curl --progress-bar -F document=@"$1" "https://api.telegram.org/bot${BOTTOKEN}/sendDocument" \
@@ -122,7 +122,7 @@ telegram_post(){
  if [ -f ${ZIP} ]; then
 	rclone copy ${ZIP} brrbrr:rom -P
 	MD5CHECK=$(md5sum ${ZIP} | cut -d' ' -f1)
-	ZIPNAME=$(echo ${ZIP} | cut -s -d'/' -f8)
+	ZIPNAME=$(echo ${ZIP} | cut -s -d'/' -f2)
 	DWD=${TDRIVE}${ZIPNAME}
 	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>${DWD}</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
  else

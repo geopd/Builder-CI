@@ -1,10 +1,10 @@
 task:
   name: rom
-  timeout_in: 100m
+  timeout_in: 120m
   container:
     dockerfile: Dockerfile
-    cpu: 15
-    memory: 24G
+    cpu: 8
+    memory: 32G
   environment:
     CIRRUS_CLONE_DEPTH: 1
     CIRRUS_WORKING_DIR: "/tmp/ci"
