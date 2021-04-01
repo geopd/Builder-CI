@@ -74,7 +74,7 @@ case "${rom}" in
     ;;
 esac
 
-BUILD_DATE=$(date +"%Y%m%d")
+BUILD_MONTH=$(date +"%Y%m")
 BUILD_START=$(date +"%s")
 
 telegram_message() {
@@ -108,7 +108,7 @@ ls -a $(pwd)/out/target/product/sakura/
 
 BUILD_END=$(date +"%s")
 DIFF=$((BUILD_END - BUILD_START))
-ZIP=$(find $(pwd)/out/target/product/sakura/ -name "*sakura*"${BUILD_DATE}"*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
+ZIP=$(find $(pwd)/out/target/product/sakura/ -name "*sakura*"${BUILD_MONTH}"*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
 
 telegram_build() {
  curl --progress-bar -F document=@"$1" "https://api.telegram.org/bot${BOTTOKEN}/sendDocument" \
@@ -122,7 +122,7 @@ telegram_post(){
  if [ -f ${ZIP} ]; then
 	rclone copy ${ZIP} brrbrr:rom -P
 	MD5CHECK=$(md5sum ${ZIP} | cut -d' ' -f1)
-	ZIPNAME=$(echo ${ZIP} | cut -s -d'/' -f2)
+	ZIPNAME=$(echo ${ZIP} | cut -s -d'/' -f8)
 	DWD=${TDRIVE}${ZIPNAME}
 	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>${DWD}</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
  else
