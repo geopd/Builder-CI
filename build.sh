@@ -10,7 +10,7 @@ export rom=OctaviOS
 
 rom_one(){
  repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
- schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
+ repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
  git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-11 device/xiaomi/sakura
  git clone https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
  . build/envsetup.sh && lunch dot_sakura-userdebug
@@ -18,7 +18,7 @@ rom_one(){
 
 rom_two(){
  repo init --depth=1 --no-repo-verify -u https://github.com/Evolution-X/manifest -b elle -g default,-device,-mips,-darwin,-notdefault
- schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
+ repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
  git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b elle device/xiaomi/sakura
  git clone https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
  rm -rf vendor/gms && git clone https://gitlab.com/geopdgitlab/vendor_gapps -b eleven vendor/gms
@@ -27,7 +27,7 @@ rom_two(){
 
 rom_three(){
  repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
- schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
+ repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
  git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-R device/xiaomi/sakura
  git clone https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
  rm -rf hardware/qcom-caf/msm8996/audio hardware/qcom-caf/msm8996/display hardware/qcom-caf/msm8996/media
@@ -39,7 +39,7 @@ rom_three(){
 
 rom_four(){
  repo init --depth=1 --no-repo-verify -u https://github.com/Octavi-OS/platform_manifest.git -b 11 -g default,-device,-mips,-darwin,-notdefault
- schedtool -B -n 0 -e ionice -n 0 `which repo` sync --no-tags --no-clone-bundle --force-sync --optimized-fetch -q -j18 "$@"
+ repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
  git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b Octavi-11 device/xiaomi/sakura
  git clone https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
  rm -rf hardware/qcom-caf/msm8996/audio hardware/qcom-caf/msm8996/display hardware/qcom-caf/msm8996/media
@@ -48,8 +48,15 @@ rom_four(){
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_media -b 11.0 hardware/qcom-caf/msm8996/media
  git clone https://bitbucket.org/syberia-project/external_motorola_faceunlock -b 11.0 external/motorola/faceunlock
  git clone https://github.com/LineageOS/android_vendor_qcom_opensource_healthd-ext -b lineage-18.1 vendor/qcom/opensource/healthd-ext
- sed -i '677s/private int mTorchActionMode;//g' fra*/ba*/ser*/cor*/ja*/com/and*/ser*/pol*/PhoneWindowManager.java # for the betterment of society1
- export SKIP_ABI_CHECKS=true # for the betterment of society2
+ rm -rf vendor/qcom/opensource/interfaces hardware/qcom-caf/wlan
+ git clone https://github.com/LineageOS/android_vendor_qcom_opensource_interfaces -b lineage-18.1 vendor/qcom/opensource/interfaces
+ git clone https://github.com/PixelExperience/hardware_qcom-caf_wlan -b eleven hardware/qcom-caf/wlan
+ sed -i '677s/private int mTorchActionMode;//g' fra*/ba*/ser*/cor*/ja*/com/and*/ser*/pol*/PhoneWindowManager.java # rest are for the betterment of society
+ sed -i '219s/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
+ sed -i '220s/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
+ sed -i '10s/Nobody/MYSTO/g' vendor/octavi/config/branding.mk
+ rclone copy brrbrr:ic_device_sakura.png pac*/apps/Settings/res/drawable/ -P
+ export SKIP_ABI_CHECKS=true
  . build/envsetup.sh && lunch octavi_sakura-userdebug
 }
 
@@ -108,7 +115,8 @@ ls -a $(pwd)/out/target/product/sakura/
 
 BUILD_END=$(date +"%s")
 DIFF=$((BUILD_END - BUILD_START))
-ZIP=$(find $(pwd)/out/target/product/sakura/ -name "*sakura*"${BUILD_MONTH}"*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
+ZIP=$(find $(pwd)/out/target/product/sakura/ -maxdepth 1 -name "*sakura*"${BUILD_MONTH}"*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
+echo "${ZIP}"
 
 telegram_build() {
  curl --progress-bar -F document=@"$1" "https://api.telegram.org/bot${BOTTOKEN}/sendDocument" \
@@ -119,16 +127,16 @@ telegram_build() {
 }
 
 telegram_post(){
- if [ -f ${ZIP} ]; then
+ if [ ! -f ${ZIP} ]; then
+	LOG="$(echo "$(pwd)/out/build_error")"
+	telegram_build ${LOG} "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
+	_Date:  $(date +"%d-%m-%Y %T")_"
+ else
 	rclone copy ${ZIP} brrbrr:rom -P
 	MD5CHECK=$(md5sum ${ZIP} | cut -d' ' -f1)
 	ZIPNAME=$(echo ${ZIP} | cut -s -d'/' -f8)
 	DWD=${TDRIVE}${ZIPNAME}
 	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>${DWD}</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
- else
-	LOG="$(echo "$(pwd)/out/build_error")"
-	telegram_build ${LOG} "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
-	_Date:  $(date +"%d-%m-%Y %T")_"
  fi
 }
 
