@@ -98,13 +98,13 @@ export USE_CCACHE=1
 ccache -M 50G && ccache -z
 
 case "${rom}" in
- "dotOS") make bacon -j18
+ "dotOS") make bacon -j18 | tee build.log
     ;;
- "EvolutionX") mka bacon -j18
+ "EvolutionX") mka bacon -j18 | tee build.log
     ;;
- "dotOS-R") make bacon -j18
+ "dotOS-R") make bacon -j18 | tee build.log
     ;;
- "OctaviOS") mka octavi -j18
+ "OctaviOS") mka octavi -j18 | tee build.log
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -116,6 +116,7 @@ ls -a $(pwd)/out/target/product/sakura/
 BUILD_END=$(date +"%s")
 DIFF=$((BUILD_END - BUILD_START))
 ZIP=$(find $(pwd)/out/target/product/sakura/ -maxdepth 1 -name "*sakura*"${BUILD_MONTH}"*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
+ZIPNAME=$(basename ${ZIP})
 echo "${ZIP}"
 
 telegram_build() {
@@ -127,17 +128,16 @@ telegram_build() {
 }
 
 telegram_post(){
- if [ ! -f ${ZIP} ]; then
-	LOG="$(echo "$(pwd)/out/build_error")"
-	telegram_build ${LOG} "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
-	_Date:  $(date +"%d-%m-%Y %T")_"
- else
+ if [ -f $(pwd)/out/target/product/sakura/${ZIPNAME} ]; then
 	rclone copy ${ZIP} brrbrr:rom -P
 	MD5CHECK=$(md5sum ${ZIP} | cut -d' ' -f1)
-	ZIPNAME=$(basename ${ZIP})
 	TRANSFER=$(curl --upload-file ${ZIP} https://transfer.sh/${ZIPNAME})
 	DWD=${TDRIVE}${ZIPNAME}
 	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>Tdrive</a> | <a href='${TRANSFER}'> Transfer</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
+ else
+	LOG=$(pwd)/build.log
+	telegram_build ${LOG} "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
+	_Date:  $(date +"%d-%m-%Y %T")_"
  fi
 }
 
