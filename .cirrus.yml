@@ -17,9 +17,9 @@ task:
   download_ccache_background_script:
       - cd /tmp && mkdir -p ~/.config/rclone
       - echo "$rclone_config" > ~/.config/rclone/rclone.conf
-      - rclone copy brrbrr:ccache/ccache.tar.gz /tmp -P && tar xf ccache.tar.gz
+      - rclone copy brrbrr:ccache/ccache.tar.zst /tmp -P && tar -xaf ccache.tar.zst
   build_script:
       - bash build.sh
   upload_ccache_script:
-      - cd /tmp && tar --use-compress-program="pigz -k -1 " -cf ccache.tar.gz ccache
-      - rclone copy ccache.tar.gz brrbrr:ccache -P
+      - cd /tmp && tar "-I zstd -1 -T8" -cf ccache.tar.zst ccache
+      - rclone copy ccache.tar.zst brrbrr:ccache -P

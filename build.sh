@@ -57,10 +57,10 @@ rom_four(){
  sed -i '10s/Nobody/MYSTO/g' vendor/octavi/config/branding.mk
  rclone copy brrbrr:ic_device_sakura.png pac*/apps/Settings/res/drawable/ -P
  export SKIP_ABI_CHECKS=true
- . build/envsetup.sh && lunch octavi_sakura-userdebug
+ . build/envsetup.sh && lunch octavi_sakura-user
 }
 
-git clone https://${TOKEN}@github.com/geopd/kernel_xiaomi_msm8953 -b test kernel/xiaomi/msm8953 
+git clone https://${TOKEN}@github.com/geopd/kernel_xiaomi_msm8953 -b beta-4.9-Q kernel/xiaomi/msm8953
 git clone https://github.com/geopd/vendor_custom_prebuilts -b master vendor/custom/prebuilts
 git clone https://github.com/mvaisakh/gcc-arm64.git -b gcc-master prebuilts/gcc/linux-x86/aarch64/aarch64-elf
 
@@ -135,8 +135,14 @@ telegram_post(){
 	DWD=${TDRIVE}${ZIPNAME}
 	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>Tdrive</a> | <a href='${TRANSFER}'> Transfer</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
  else
-	LOG=$(pwd)/build.log
-	telegram_build ${LOG} "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
+	BUILD_LOG=$(pwd)/build.log
+	tail -n 10000 ${BUILD_LOG} >> $(pwd)/buildtrim.log
+	LOG1=$(pwd)/buildtrim.txt
+	echo "CHECK BUILD LOG" >> $(pwd)/out/build_error
+	LOG2=$(pwd)/out/build_error
+	TRANSFER=$(curl --upload-file ${LOG1} https://transfer.sh/$(basename ${LOG1}))
+	telegram_build ${LOG2} "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
+	Build Log: ${TRANSFER}
 	_Date:  $(date +"%d-%m-%Y %T")_"
  fi
 }
