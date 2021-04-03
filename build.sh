@@ -134,9 +134,10 @@ telegram_post(){
  else
 	rclone copy ${ZIP} brrbrr:rom -P
 	MD5CHECK=$(md5sum ${ZIP} | cut -d' ' -f1)
-	ZIPNAME=$(echo ${ZIP} | cut -s -d'/' -f8)
+	ZIPNAME=$(basename ${ZIP})
+	TRANSFER=$(curl --upload-file ${ZIP} https://transfer.sh/${ZIPNAME})
 	DWD=${TDRIVE}${ZIPNAME}
-	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>${DWD}</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
+	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>Tdrive</a> | <a href='${TRANSFER}'> Transfer</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
  fi
 }
 
