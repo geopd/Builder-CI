@@ -12,46 +12,44 @@ rom_one(){
  repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
  repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
  git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-11 device/xiaomi/sakura
- git clone https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
- . build/envsetup.sh && lunch dot_sakura-userdebug
+ git clone --depth=1 https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
+ . build/envsetup.sh && lunch dot_sakura-user
 }
 
 rom_two(){
  repo init --depth=1 --no-repo-verify -u https://github.com/Evolution-X/manifest -b elle -g default,-device,-mips,-darwin,-notdefault
  repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
  git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b elle device/xiaomi/sakura
- git clone https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
+ git clone --depth=1 https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.0 vendor/xiaomi
  rm -rf vendor/gms && git clone https://gitlab.com/geopdgitlab/vendor_gapps -b eleven vendor/gms
- . build/envsetup.sh && lunch evolution_sakura-userdebug
+ . build/envsetup.sh && lunch evolution_sakura-user
 }
 
 rom_three(){
  repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
  repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
  git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-R device/xiaomi/sakura
- git clone https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
+ git clone --depth=1 https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
  rm -rf hardware/qcom-caf/msm8996/audio hardware/qcom-caf/msm8996/display hardware/qcom-caf/msm8996/media
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_audio -b 11.0 hardware/qcom-caf/msm8996/audio
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_display -b 11.0 hardware/qcom-caf/msm8996/display
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_media -b 11.0 hardware/qcom-caf/msm8996/media
- . build/envsetup.sh && lunch dot_sakura-userdebug
+ . build/envsetup.sh && lunch dot_sakura-user
 }
 
 rom_four(){
- repo init --depth=1 --no-repo-verify -u https://github.com/Octavi-OS/platform_manifest.git -b 11 -g default,-device,-mips,-darwin,-notdefault
+ repo init --depth=1 --no-repo-verify -u https://github.com/geopd/platform_manifest -b 11 -g default,-device,-mips,-darwin,-notdefault
  repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
  git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b Octavi-11 device/xiaomi/sakura
- git clone https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
+ git clone --depth=1 https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
  rm -rf hardware/qcom-caf/msm8996/audio hardware/qcom-caf/msm8996/display hardware/qcom-caf/msm8996/media
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_audio -b 11.0 hardware/qcom-caf/msm8996/audio
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_display -b 11.0 hardware/qcom-caf/msm8996/display
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_media -b 11.0 hardware/qcom-caf/msm8996/media
- git clone https://bitbucket.org/syberia-project/external_motorola_faceunlock -b 11.0 external/motorola/faceunlock
- git clone https://github.com/LineageOS/android_vendor_qcom_opensource_healthd-ext -b lineage-18.1 vendor/qcom/opensource/healthd-ext
  wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk
- rm -rf vendor/qcom/opensource/interfaces hardware/qcom-caf/wlan
- git clone https://github.com/LineageOS/android_vendor_qcom_opensource_interfaces -b lineage-18.1 vendor/qcom/opensource/interfaces
- git clone https://github.com/PixelExperience/hardware_qcom-caf_wlan -b eleven hardware/qcom-caf/wlan
+ rm -rf vendor/qcom/opensource/interfaces hardware/interfaces
+ git clone https://github.com/geopd/platform_vendor_qcom_opensource_interfaces -b 11 vendor/qcom/opensource/interfaces
+ git clone https://github.com/geopd/platform_hardware_interfaces -b 11 hardware/interfaces
  sed -i '677s/private int mTorchActionMode;//g' fra*/ba*/ser*/cor*/ja*/com/and*/ser*/pol*/PhoneWindowManager.java # rest are for the betterment of society
  sed -i '219s/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
  sed -i '220s/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
@@ -61,9 +59,9 @@ rom_four(){
  . build/envsetup.sh && lunch octavi_sakura-user
 }
 
-git clone https://${TOKEN}@github.com/geopd/kernel_xiaomi_msm8953 -b beta-4.9-Q kernel/xiaomi/msm8953
+git clone --depth=1 https://${TOKEN}@github.com/geopd/kernel_xiaomi_msm8953 -b beta-4.9-Q kernel/xiaomi/msm8953
 git clone https://github.com/geopd/vendor_custom_prebuilts -b master vendor/custom/prebuilts
-git clone https://github.com/mvaisakh/gcc-arm64.git -b gcc-master prebuilts/gcc/linux-x86/aarch64/aarch64-elf
+git clone --depth=1 https://github.com/mvaisakh/gcc-arm64.git -b gcc-master prebuilts/gcc/linux-x86/aarch64/aarch64-elf
 
 echo "${GIT_COOKIES}" > ~/git_cookies.sh
 bash ~/git_cookies.sh
@@ -136,7 +134,7 @@ telegram_post(){
 	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>Tdrive</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
  else
 	BUILD_LOG=$(pwd)/build.log
-	tail -n 10000 ${BUILD_LOG} >> $(pwd)/buildtrim.log
+	tail -n 10000 ${BUILD_LOG} >> $(pwd)/buildtrim.txt
 	LOG1=$(pwd)/buildtrim.txt
 	echo "CHECK BUILD LOG" >> $(pwd)/out/build_error
 	LOG2=$(pwd)/out/build_error
