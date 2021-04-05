@@ -48,6 +48,7 @@ rom_four(){
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_media -b 11.0 hardware/qcom-caf/msm8996/media
  git clone https://bitbucket.org/syberia-project/external_motorola_faceunlock -b 11.0 external/motorola/faceunlock
  git clone https://github.com/LineageOS/android_vendor_qcom_opensource_healthd-ext -b lineage-18.1 vendor/qcom/opensource/healthd-ext
+ wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk
  rm -rf vendor/qcom/opensource/interfaces hardware/qcom-caf/wlan
  git clone https://github.com/LineageOS/android_vendor_qcom_opensource_interfaces -b lineage-18.1 vendor/qcom/opensource/interfaces
  git clone https://github.com/PixelExperience/hardware_qcom-caf_wlan -b eleven hardware/qcom-caf/wlan
