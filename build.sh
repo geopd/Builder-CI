@@ -94,7 +94,7 @@ telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>
 export CCACHE_DIR=/tmp/ccache
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
-ccache -M 50G && ccache -z
+ccache -M 50G && ccache -o compression=true && ccache -z
 
 case "${rom}" in
  "dotOS") make bacon -j18 | tee build.log

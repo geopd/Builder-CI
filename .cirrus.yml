@@ -20,7 +20,7 @@ task:
       - rclone copy brrbrr:ccache/ccache.tar.zst /tmp -P && tar -xaf ccache.tar.zst
   upload_ccache_background_script:
       - cd /tmp
-      - while true; do sleep 55m; tar "-I zstd -1 -T8" -cf ccache.tar.zst ccache; rclone copy ccache.tar.zst brrbrr:ccache -P; rm ccache.tar.zst; done
+      - while true; do sleep 95m; tar "-I zstd -1 -T8" -cf ccache.tar.zst ccache; rclone copy ccache.tar.zst brrbrr:ccache -P; rm ccache.tar.zst; done
   build_script:
       - bash build.sh
   final_upload_ccache_script:
