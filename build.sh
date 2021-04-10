@@ -56,7 +56,7 @@ rom_four(){
  sed -i '10s/Nobody/MYSTO/g' vendor/octavi/config/branding.mk
  rclone copy brrbrr:ic_device_sakura.png pac*/apps/Settings/res/drawable/ -P
  export SKIP_ABI_CHECKS=true
- . build/envsetup.sh && lunch octavi_sakura-user
+ . build/envsetup.sh && lunch octavi_sakura-userdebug
 }
 
 git clone --depth=1 https://${TOKEN}@github.com/geopd/kernel_xiaomi_msm8953 -b beta-4.9-Q kernel/xiaomi/msm8953
