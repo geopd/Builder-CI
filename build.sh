@@ -6,8 +6,6 @@ cd /tmp/rom
 git config --global user.name GeoPD
 git config --global user.email geoemmanuelpd2001@gmail.com
 
-export rom=OctaviOS
-
 rom_one(){
  repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
  repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
@@ -34,7 +32,7 @@ rom_three(){
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_audio -b 11.0 hardware/qcom-caf/msm8996/audio
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_display -b 11.0 hardware/qcom-caf/msm8996/display
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_media -b 11.0 hardware/qcom-caf/msm8996/media
- . build/envsetup.sh && lunch dot_sakura-user
+ . build/envsetup.sh && lunch dot_sakura-userdebug
 }
 
 rom_four(){
@@ -90,6 +88,7 @@ telegram_message() {
 
 telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
 
+sed -i '68s/true/false/g' build/soong/cc/tidy.go # soong: Disable clang-tidy
 export CCACHE_DIR=/tmp/ccache
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
