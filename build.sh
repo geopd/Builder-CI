@@ -38,19 +38,18 @@ rom_three(){
 }
 
 rom_four(){
- repo init --depth=1 --no-repo-verify -u https://github.com/geopd/platform_manifest -b 11 -g default,-device,-mips,-darwin,-notdefault
+ repo init --depth=1 --no-repo-verify -u https://github.com/Octavi-OS/platform_manifest.git -b 11 -g default,-device,-mips,-darwin,-notdefault
  repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
  git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b Octavi-11 device/xiaomi/sakura
  git clone --depth=1 https://${TOKEN}@github.com/geopd/vendor_xiaomi_sakura_TEST.git -b lineage-18.1 vendor/xiaomi
+ git clone https://github.com/LineageOS/android_vendor_qcom_opensource_healthd-ext -b lineage-18.1 vendor/qcom/opensource/healthd-ext
  rm -rf hardware/qcom-caf/msm8996/audio hardware/qcom-caf/msm8996/display hardware/qcom-caf/msm8996/media
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_audio -b 11.0 hardware/qcom-caf/msm8996/audio
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_display -b 11.0 hardware/qcom-caf/msm8996/display
  git clone https://github.com/Jabiyeff-Project/android_hardware_qcom_media -b 11.0 hardware/qcom-caf/msm8996/media
  wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk
- rm -rf vendor/qcom/opensource/interfaces hardware/interfaces
- git clone https://github.com/geopd/platform_vendor_qcom_opensource_interfaces -b 11 vendor/qcom/opensource/interfaces
- git clone https://github.com/geopd/platform_hardware_interfaces -b 11 hardware/interfaces
- sed -i '677s/private int mTorchActionMode;//g' fra*/ba*/ser*/cor*/ja*/com/and*/ser*/pol*/PhoneWindowManager.java # rest are for the betterment of society
+ cd vendor/qcom/opensource/interfaces && git fetch https://github.com/geopd/platform_vendor_qcom_opensource_interfaces && git cherry-pick dcc8035253e598bff040412e9f8766096608e9cf && cd ../../../..
+ cd hardware/interfaces && git fetch https://github.com/geopd/platform_hardware_interfaces && git cherry-pick aa583427df6d45dd376d69fcbaf484facaed6c86 && cd ../..
  sed -i '219s/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
  sed -i '220s/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
  sed -i '10s/Nobody/MYSTO/g' vendor/octavi/config/branding.mk
