@@ -88,7 +88,6 @@ telegram_message() {
 
 telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
 
-sed -i '68s/true/false/g' build/soong/cc/tidy.go # soong: Disable clang-tidy
 export CCACHE_DIR=/tmp/ccache
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
@@ -143,5 +142,11 @@ telegram_post(){
  fi
 }
 
+post_json(){
+ JSON=$(pwd)/out/target/product/sakura/build*.json
+ telegram_build ${JSON} "*BUILD JSON*"
+}
+
 telegram_post
+post_json
 ccache -s
