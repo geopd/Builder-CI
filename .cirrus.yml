@@ -14,7 +14,7 @@ task:
     BOTTOKEN: "ENCRYPTED[5f66a3ce45010e58a5c3b14da152bd165672dc117b35d4452b33ff7b19aad5d9444f91e46c188247590c0fab26d0d971]"
     GIT_COOKIES: "ENCRYPTED[8a511e77b1df0239dccd8a670c98ae6454bcedaea68bc4722fbd7f0f6e91bf7670332659ee9ea90c199dfe52b3d9b637]"
     TDRIVE: "ENCRYPTED[a652c76e8daec21a619b56878ccad3c268174d0400e4f46a79d41fc4c643a4f401a1a5512d292b8e7813c28c0dcbf4c8]"
-    rom: "dotOS"
+    rom: "P404"
   download_ccache_background_script:
       - cd /tmp && mkdir -p ~/.config/rclone
       - echo "$rclone_config" > ~/.config/rclone/rclone.conf

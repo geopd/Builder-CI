@@ -3,6 +3,11 @@
 mkdir -p /tmp/rom
 cd /tmp/rom
 
+
+# export sync start time
+SYNC_START=$(date +"%s")
+
+
 git config --global user.name GeoPD
 git config --global user.email geoemmanuelpd2001@gmail.com
 
@@ -12,28 +17,35 @@ echo "${GIT_COOKIES}" > ~/git_cookies.sh
 bash ~/git_cookies.sh
 
 
-# local manifests (vt,kt and hals)
-git clone https://${TOKEN}@github.com/geopd/local_manifests .repo/local_manifests
-
-
 # Rom repo sync & dt ( Add roms and update case functions )
 rom_one(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
-     git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b dot-R device/xiaomi/sakura
+     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j14
      . build/envsetup.sh && lunch dot_sakura-userdebug
 }
 
 rom_two(){
      repo init --depth=1 --no-repo-verify -u https://github.com/Octavi-OS/platform_manifest.git -b 11 -g default,-device,-mips,-darwin,-notdefault
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
-     git clone https://${TOKEN}@github.com/geopd/device_xiaomi_sakura_TEST.git -b Octavi-11 device/xiaomi/sakura
+     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j14
      wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk # temp haxxs
      sed -i 's/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
      sed -i '10s/Nobody/MYSTO/g' vendor/octavi/config/branding.mk
      rclone copy brrbrr:ic_device_sakura.png pac*/apps/Settings/res/drawable/ -P
      export SKIP_ABI_CHECKS=true
      . build/envsetup.sh && lunch octavi_sakura-userdebug
+}
+
+rom_three(){
+     repo init --depth=1 --no-repo-verify -u https://github.com/P-404/platform_manifest -b rippa -g default,-device,-mips,-darwin,-notdefault
+     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
+     sed -i 's/source.codeaurora.org/portland.source.codeaurora.org/g' .repo/manifests/default.xml
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j14
+     sed -i '107 i \\t"ccache":  Allowed,' build/soong/ui/build/paths/config.go
+     export SELINUX_IGNORE_NEVERALLOWS=true
+     export SKIP_ABI_CHECKS=true
+     source build/envsetup.sh && lunch p404_sakura-userdebug
 }
 
 
@@ -59,18 +71,24 @@ case "${rom}" in
     ;;
  "OctaviOS") rom_two
     ;;
+ "P404") rom_three
+    ;;
  *) echo "Invalid option!"
     exit 1
     ;;
 esac
 
 
-# Send 'Build Triggered' message in TG
-telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
+# export sync end time and diff with sync start
+SYNC_END=$(date +"%s")
+SDIFF=$((SYNC_END - SYNC_START))
 
 
-# export build month and build start time
-BUILD_MONTH=$(date +"%Y%m")
+# Send 'Build Triggered' message in TG along with sync time
+telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>%0A%0A<b>✅ Sync finished after $((SDIFF / 60)) minute(s) and $((SDIFF % 60)) seconds</b>"
+
+
+# export build start time
 BUILD_START=$(date +"%s")
 
 
@@ -87,6 +105,8 @@ case "${rom}" in
     ;;
  "OctaviOS") mka octavi -j18 | tee build.log
     ;;
+ "P404") m bacon -j18 | tee build.log
+    ;;
  *) echo "Invalid option!"
     exit 1
     ;;
@@ -99,8 +119,9 @@ DIFF=$((BUILD_END - BUILD_START))
 
 
 # sorting final zip ( commonized considering ota zips, .md5sum etc with similiar names  in diff roms)
-ZIP=$(find $(pwd)/out/target/product/sakura/ -maxdepth 1 -name "*sakura*"${BUILD_MONTH}"*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
+ZIP=$(find $(pwd)/out/target/product/sakura/ -maxdepth 1 -name "*sakura*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
 ZIPNAME=$(basename ${ZIP})
+ZIPSIZE=$(du -sh ${ZIP} |  awk '{print $1}')
 echo "${ZIP}"
 
 
@@ -110,7 +131,7 @@ telegram_post(){
 	rclone copy ${ZIP} brrbrr:rom -P
 	MD5CHECK=$(md5sum ${ZIP} | cut -d' ' -f1)
 	DWD=${TDRIVE}${ZIPNAME}
-	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>Tdrive</a>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
+	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>Tdrive</a>%0A%0A<b>Size: </b><code>${ZIPSIZE}</code>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
  else
 	BUILD_LOG=$(pwd)/build.log
 	tail -n 10000 ${BUILD_LOG} >> $(pwd)/buildtrim.txt
