@@ -16,19 +16,24 @@ git config --global user.email geoemmanuelpd2001@gmail.com
 echo "${GIT_COOKIES}" > ~/git_cookies.sh
 bash ~/git_cookies.sh
 
+# Tmate session in case of build errors
+tmate -S $HOME/.tmate.sock new-session -d
+tmate -S $HOME/.tmate.sock wait tmate-ready
+echo "$(tmate -S $HOME/.tmate.sock display -p '#{tmate_ssh}')" > ~/.ssh_id
+
 
 # Rom repo sync & dt ( Add roms and update case functions )
 rom_one(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j14
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
      . build/envsetup.sh && lunch dot_sakura-userdebug
 }
 
 rom_two(){
      repo init --depth=1 --no-repo-verify -u https://github.com/Octavi-OS/platform_manifest.git -b 11 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j14
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
      wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk # temp haxxs
      sed -i 's/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
      sed -i '10s/Nobody/MYSTO/g' vendor/octavi/config/branding.mk
@@ -40,12 +45,15 @@ rom_two(){
 rom_three(){
      repo init --depth=1 --no-repo-verify -u https://github.com/P-404/platform_manifest -b rippa -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
-     sed -i 's/source.codeaurora.org/portland.source.codeaurora.org/g' .repo/manifests/default.xml
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j14
+     git config --global url.https://source.codeaurora.org.insteadOf git://codeaurora.org
+     curl -L http://source.codeaurora.org/platform/manifest/clone.bundle > /dev/null
+     sed -i 's/source.codeaurora.org/oregon.source.codeaurora.org/g' .repo/manifests/default.xml
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+     wget https://raw.githubusercontent.com/geopd/misc/master/gms-vendor.mk && mv gms-vendor.mk vendor/google/gms/gms-vendor.mk
      sed -i '107 i \\t"ccache":  Allowed,' build/soong/ui/build/paths/config.go
      export SELINUX_IGNORE_NEVERALLOWS=true
      export SKIP_ABI_CHECKS=true
-     source build/envsetup.sh && lunch p404_sakura-userdebug
+     source build/envsetup.sh && lunch p404_sakura-user
 }
 
 
@@ -85,7 +93,7 @@ SDIFF=$((SYNC_END - SYNC_START))
 
 
 # Send 'Build Triggered' message in TG along with sync time
-telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>%0A%0A<b>✅ Sync finished after $((SDIFF / 60)) minute(s) and $((SDIFF % 60)) seconds</b>"
+telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>%0A%0A<b>SSH ID: </b><code>$(cat ~/.ssh_id)</code>%0A%0A<b>✅ Sync finished after $((SDIFF / 60)) minute(s) and $((SDIFF % 60)) seconds</b>"  &> /dev/null
 
 
 # export build start time
@@ -105,7 +113,7 @@ case "${rom}" in
     ;;
  "OctaviOS") mka octavi -j18 | tee build.log
     ;;
- "P404") m bacon -j18 | tee build.log
+ "P404") m system-api-stubs-docs test-api-stubs-docs && m bacon -j18 | tee build.log
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -125,7 +133,8 @@ ZIPSIZE=$(du -sh ${ZIP} |  awk '{print $1}')
 echo "${ZIP}"
 
 
-# Post Build finished with Time,duration,md5&Tdrive link OR post build_error&trimmed build.log in TG
+
+# Post Build finished with Time,duration,md5,size&Tdrive link OR post build_error&trimmed build.log in TG
 telegram_post(){
  if [ -f $(pwd)/out/target/product/sakura/${ZIPNAME} ]; then
 	rclone copy ${ZIP} brrbrr:rom -P

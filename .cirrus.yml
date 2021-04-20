@@ -20,10 +20,8 @@ task:
       - echo "$rclone_config" > ~/.config/rclone/rclone.conf
       - rclone copy brrbrr:ccache/$rom/ccache.tar.zst /tmp -P && tar -xaf ccache.tar.zst
   upload_ccache_background_script:
-      - cd /tmp
-      - while true; do sleep 95m; tar "-I zstd -1 -T8" -cf ccache.tar.zst ccache; rclone copy ccache.tar.zst brrbrr:ccache/$rom -P; rm ccache.tar.zst; done
+      - bash upload_ccache.sh
   build_script:
       - bash build.sh
   final_upload_ccache_script:
-      - cd /tmp && tar "-I zstd -1 -T8" -cf ccache.tar.zst ccache
-      - rclone copy ccache.tar.zst brrbrr:ccache/$rom -P
+      - bash final_upload_ccache.sh
