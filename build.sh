@@ -56,6 +56,15 @@ rom_three(){
      source build/envsetup.sh && lunch p404_sakura-user
 }
 
+rom_four(){
+     repo init --depth=1 --no-repo-verify -u https://github.com/ResurrectionRemix/platform_manifest.git -b Q -g default,-device,-mips,-darwin,-notdefault
+     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+     sed -i '79 i \\t"ccache":  Allowed,' build/soong/ui/build/paths/config.go
+     export RR_BUILDTYPE=Official
+     . build/envsetup.sh && lunch rr_sakura-userdebug
+}
+
 
 # setup TG message and build posts
 telegram_message() {
@@ -80,6 +89,8 @@ case "${rom}" in
  "OctaviOS") rom_two
     ;;
  "P404") rom_three
+    ;;
+ "RR") rom_four
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -114,6 +125,8 @@ case "${rom}" in
  "OctaviOS") mka octavi -j18 | tee build.log
     ;;
  "P404") m system-api-stubs-docs test-api-stubs-docs && m bacon -j18 | tee build.log
+    ;;
+ "RR") mka bacon -j18 | tee build.log
     ;;
  *) echo "Invalid option!"
     exit 1
