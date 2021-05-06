@@ -3,6 +3,7 @@
 mkdir -p /tmp/rom
 cd /tmp/rom
 
+HOSTNAME="mysto"
 
 # export sync start time
 SYNC_START=$(date +"%s")
@@ -27,7 +28,7 @@ rom_one(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
-     . build/envsetup.sh && lunch dot_sakura-userdebug
+     . build/envsetup.sh && lunch dot_sakura-user
 }
 
 rom_two(){
