@@ -70,7 +70,7 @@ rom_four(){
 # setup TG message and build posts
 telegram_message() {
 	curl -s -X POST "https://api.telegram.org/bot${BOTTOKEN}/sendMessage" -d chat_id="${CHATID}" \
-	-d "parse_mode=html" \
+	-d "parse_mode=Markdown" \
 	-d text="$1"
 }
 
@@ -80,6 +80,16 @@ telegram_build() {
 	-F "disable_web_page_preview=true" \
 	-F "parse_mode=Markdown" \
 	-F caption="$2"
+}
+
+
+# Branch name & Head commit sha for ease of tracking
+commit_sha() {
+    for repo in device/xiaomi/sakura vendor/xiaomi kernel/xiaomi/msm8953
+    do
+	printf $'\n'[$(git -C ./$repo/.git rev-parse --abbrev-ref HEAD)/
+	printf $(git -C ./$repo/.git rev-parse --short=10 HEAD)]
+    done
 }
 
 
@@ -105,7 +115,11 @@ SDIFF=$((SYNC_END - SYNC_START))
 
 
 # Send 'Build Triggered' message in TG along with sync time
-telegram_message "<b>🌟 $rom Build Triggered 🌟</b>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>%0A%0A<b>SSH ID: </b><code>$(cat ~/.ssh_id)</code>%0A%0A<b>✅ Sync finished after $((SDIFF / 60)) minute(s) and $((SDIFF % 60)) seconds</b>"  &> /dev/null
+telegram_message "
+	*🌟 $rom Build Triggered 🌟*
+	*Date:* \`$(date +"%d-%m-%Y %T")\`
+	*SSH ID:* \`$(cat ~/.ssh_id)\`
+	*✅ Sync finished after $((SDIFF / 60)) minute(s) and $((SDIFF % 60)) seconds*"  &> /dev/null
 
 
 # export build start time
@@ -121,13 +135,13 @@ ccache -M 50G && ccache -o compression=true && ccache -z
 
 # Build commands for each roms on basis of rom flag in .yml / an additional full build.log is kept.
 case "${rom}" in
- "dotOS") make bacon -j18 | tee build.log
+ "dotOS") make bacon -j18
     ;;
- "OctaviOS") mka octavi -j18 | tee build.log
+ "OctaviOS") mka octavi -j18
     ;;
- "P404") m system-api-stubs-docs test-api-stubs-docs && m bacon -j18 | tee build.log
+ "P404") m system-api-stubs-docs test-api-stubs-docs && m bacon -j18
     ;;
- "RR") mka bacon -j18 | tee build.log
+ "RR") mka bacon -j18
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -154,7 +168,15 @@ telegram_post(){
 	rclone copy ${ZIP} brrbrr:rom -P
 	MD5CHECK=$(md5sum ${ZIP} | cut -d' ' -f1)
 	DWD=${TDRIVE}${ZIPNAME}
-	telegram_message "<b>✅ Build finished after $((DIFF / 3600)) hour(s), $((DIFF % 3600 / 60)) minute(s) and $((DIFF % 60)) seconds</b>%0A%0A<b>ROM: </b><code>${ZIPNAME}</code>%0A%0A<b>MD5 Checksum: </b><code>${MD5CHECK}</code>%0A%0A<b>Download Link: </b><a href='${DWD}'>Tdrive</a>%0A%0A<b>Size: </b><code>${ZIPSIZE}</code>%0A%0A<b>Date: </b><code>$(date +"%d-%m-%Y %T")</code>"
+	telegram_message "
+	*✅ Build finished after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
+	*ROM:* \`${ZIPNAME}\`
+	*MD5 Checksum:* \`${MD5CHECK}\`
+	*Download Link:* [Tdrive](${DWD})
+	*Size:* \`${ZIPSIZE}\`
+	*Commit SHA:* \`$(commit_sha)\`
+
+	*Date:*  \`$(date +"%d-%m-%Y %T")\`"
  else
 	BUILD_LOG=$(pwd)/build.log
 	tail -n 10000 ${BUILD_LOG} >> $(pwd)/buildtrim.txt
@@ -162,8 +184,10 @@ telegram_post(){
 	echo "CHECK BUILD LOG" >> $(pwd)/out/build_error
 	LOG2=$(pwd)/out/build_error
 	TRANSFER=$(curl --upload-file ${LOG1} https://transfer.sh/$(basename ${LOG1}))
-	telegram_build ${LOG2} "*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
+	telegram_build ${LOG2} "
+	*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
 	Build Log: ${TRANSFER}
+
 	_Date:  $(date +"%d-%m-%Y %T")_"
  fi
 }
