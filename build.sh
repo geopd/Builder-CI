@@ -135,13 +135,13 @@ ccache -M 50G && ccache -o compression=true && ccache -z
 
 # Build commands for each roms on basis of rom flag in .yml / an additional full build.log is kept.
 case "${rom}" in
- "dotOS") make bacon -j18
+ "dotOS") make bacon -j18 2>&1 | tee build.log
     ;;
- "OctaviOS") mka octavi -j18
+ "OctaviOS") mka octavi -j18 2>&1 | tee build.log
     ;;
- "P404") m system-api-stubs-docs test-api-stubs-docs && m bacon -j18
+ "P404") m system-api-stubs-docs test-api-stubs-docs && m bacon -j18 2>&1 | tee build.log
     ;;
- "RR") mka bacon -j18
+ "RR") mka bacon -j18 2>&1 | tee build.log
     ;;
  *) echo "Invalid option!"
     exit 1
