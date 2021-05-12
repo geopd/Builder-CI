@@ -11,7 +11,7 @@ ZIPNAME=$(basename ${ZIP})
 zst_tar ()
 {
     time tar "-I zstd -1 -T16" -cf $1.tar.zst $1
-    rclone --transfers 4 --checkers 8 --drive-chunk-size 512M --stats 1s copy $1.tar.zst brrbrr:$1/$rom -P
+    rclone copy --drive-chunk-size 256M --stats 1s $1.tar.zst brrbrr:$1/$rom -P
 }
 
 

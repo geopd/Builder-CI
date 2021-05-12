@@ -13,5 +13,10 @@ RUN apt-get -yqq update \
     && TZ=Asia/Kolkata \
     && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+RUN axel -a -n 10 https://ftp.gnu.org/gnu/make/make-4.3.tar.gz \
+    && tar xvzf make-4.3.tar.gz && cd make-4.3 && ./configure \
+    && bash ./build.sh \
+    && sudo install ./make /usr/local/bin/make
+
 VOLUME ["/tmp/ccache", "/tmp/rom"]
 ENTRYPOINT ["/bin/bash"]

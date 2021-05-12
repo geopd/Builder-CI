@@ -19,6 +19,7 @@ task:
       - cd /tmp && mkdir -p ~/.config/rclone
       - echo "$rclone_config" > ~/.config/rclone/rclone.conf
       - rclone copy brrbrr:ccache/$rom/ccache.tar.zst /tmp -P && tar -xaf ccache.tar.zst
+      - rm -rf ccache.tar.zst
   upload_ccache_background_script:
       - bash upload_ccache.sh
   build_script:
