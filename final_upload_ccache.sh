@@ -10,8 +10,8 @@ ZIPNAME=$(basename ${ZIP})
 # final ccache upload
 zst_tar ()
 {
-    tar "-I zstd -1 -T16" -cf $1.tar.zst $1
-    rclone copy $1.tar.zst brrbrr:$1/$rom -P
+    time tar "-I zstd -1 -T16" -cf $1.tar.zst $1
+    rclone --transfers 4 --checkers 8 --drive-chunk-size 512M --stats 1s copy $1.tar.zst brrbrr:$1/$rom -P
 }
 
 
@@ -19,9 +19,9 @@ zst_tar ()
 sleep_on_error()
 {
  if [ -f $(pwd)/rom/out/target/product/sakura/${ZIPNAME} ]; then
-	time zst_tar ccache
+	zst_tar ccache
  else
-	time zst_tar ccache
+	zst_tar ccache
 	sleep 2h
  fi
 }
