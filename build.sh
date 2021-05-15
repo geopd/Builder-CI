@@ -66,6 +66,13 @@ rom_four(){
      . build/envsetup.sh && lunch rr_sakura-userdebug
 }
 
+rom_five(){
+     repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
+     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+     . build/envsetup.sh && lunch dot_sakura-user
+}
+
 
 # setup TG message and build posts
 telegram_message() {
@@ -87,8 +94,7 @@ telegram_build() {
 commit_sha() {
     for repo in device/xiaomi/sakura vendor/xiaomi kernel/xiaomi/msm8953
     do
-	printf $'\n'[$(git -C ./$repo/.git rev-parse --abbrev-ref HEAD)/
-	printf $(git -C ./$repo/.git rev-parse --short=10 HEAD)]
+	printf "[$(echo $repo | cut -d'/' -f1 )/$(git -C ./$repo/.git rev-parse --short=10 HEAD)]"
     done
 }
 
@@ -102,6 +108,8 @@ case "${rom}" in
  "P404") rom_three
     ;;
  "RR") rom_four
+    ;;
+ "dotOS-TEST") rom_five
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -143,6 +151,8 @@ case "${rom}" in
     ;;
  "RR") mka bacon -j18 2>&1 | tee build.log
     ;;
+ "dotOS-TEST") make bacon -j18 2>&1 | tee build.log
+    ;;
  *) echo "Invalid option!"
     exit 1
     ;;
@@ -170,10 +180,12 @@ telegram_post(){
 	DWD=${TDRIVE}${ZIPNAME}
 	telegram_message "
 	*✅ Build finished after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
+
 	*ROM:* \`${ZIPNAME}\`
 	*MD5 Checksum:* \`${MD5CHECK}\`
 	*Download Link:* [Tdrive](${DWD})
 	*Size:* \`${ZIPSIZE}\`
+
 	*Commit SHA:* \`$(commit_sha)\`
 
 	*Date:*  \`$(date +"%d-%m-%Y %T")\`"
