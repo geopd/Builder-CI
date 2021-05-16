@@ -38,6 +38,9 @@ rom_two(){
      wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk # temp haxxs
      sed -i 's/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
      sed -i '10s/Nobody/MYSTO/g' vendor/octavi/config/branding.mk
+     sed -i '49s/210405.005\/7181113/210505.003\/7255357/g' frameworks/base/core/java/com/android/internal/util/octavi/PixelPropsUtils.java
+     sed -i '73 i \\t }' pac*/apps/Set*/src/com/and*/set*/security/TopLevelSecurityEntryPreferenceController.java
+     sed -i '22d' pac*/apps/OctaviLab/res/xml/octavi_lab_navigation.xml
      rclone copy brrbrr:ic_device_sakura.png pac*/apps/Settings/res/drawable/ -P
      export SKIP_ABI_CHECKS=true
      . build/envsetup.sh && lunch octavi_sakura-userdebug
