@@ -22,5 +22,10 @@ RUN axel -a -n 10 https://github.com/facebook/zstd/releases/download/v1.5.0/zstd
     && tar xvzf zstd-1.5.0.tar.gz && cd zstd-1.5.0 \
     && sudo make install
 
+RUN curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip \
+    && unzip rclone-current-linux-amd64.zip && cd rclone-*-linux-amd64 \
+    && sudo cp rclone /usr/bin/ && sudo chown root:root /usr/bin/rclone \
+    && sudo chmod 755 /usr/bin/rclone
+
 VOLUME ["/tmp/ccache", "/tmp/rom"]
 ENTRYPOINT ["/bin/bash"]
