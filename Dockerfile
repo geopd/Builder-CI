@@ -18,5 +18,9 @@ RUN axel -a -n 10 https://ftp.gnu.org/gnu/make/make-4.3.tar.gz \
     && bash ./build.sh \
     && sudo install ./make /usr/local/bin/make
 
+RUN axel -a -n 10 https://github.com/facebook/zstd/releases/download/v1.5.0/zstd-1.5.0.tar.gz \
+    && tar xvzf zstd-1.5.0.tar.gz && cd zstd-1.5.0 \
+    && sudo make install
+
 VOLUME ["/tmp/ccache", "/tmp/rom"]
 ENTRYPOINT ["/bin/bash"]
