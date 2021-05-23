@@ -17,6 +17,15 @@ git config --global user.email geoemmanuelpd2001@gmail.com
 echo "${GIT_COOKIES}" > ~/git_cookies.sh
 bash ~/git_cookies.sh
 
+
+# SSH
+rclone copy brrbrr:ssh/ssh_ci /tmp
+sudo chmod 0600 /tmp/ssh_ci
+sudo mkdir ~/.ssh && sudo chmod 0700 ~/.ssh
+eval `ssh-agent -s` && ssh-add /tmp/ssh_ci
+sudo echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==" >> ~/.ssh/known_hosts
+
+
 # Tmate session in case of build errors
 tmate -S $HOME/.tmate.sock new-session -d
 tmate -S $HOME/.tmate.sock wait tmate-ready
@@ -28,21 +37,17 @@ rom_one(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+     export DOT_OFFICIAL=true
      . build/envsetup.sh && lunch dot_sakura-user
 }
 
 rom_two(){
-     repo init --depth=1 --no-repo-verify -u https://github.com/Octavi-OS/platform_manifest.git -b 11 -g default,-device,-mips,-darwin,-notdefault
+     repo init --depth=1 --no-repo-verify -u https://github.com/Octavi-OS/platform_manifest.git -b maintainers -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
      wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk # temp haxxs
-     sed -i 's/violet/sakura/g' pac*/apps/Set*/src/com/and*/set*/OosAboutPreference.java
-     sed -i '10s/Nobody/MYSTO/g' vendor/octavi/config/branding.mk
-     sed -i '49s/210405.005\/7181113/210505.003\/7255357/g' frameworks/base/core/java/com/android/internal/util/octavi/PixelPropsUtils.java
-     sed -i '73 i \\t }' pac*/apps/Set*/src/com/and*/set*/security/TopLevelSecurityEntryPreferenceController.java
-     sed -i '22d' pac*/apps/OctaviLab/res/xml/octavi_lab_navigation.xml
-     rclone copy brrbrr:ic_device_sakura.png pac*/apps/Settings/res/drawable/ -P
-     export SKIP_ABI_CHECKS=true
+     export OCTAVI_BUILD_TYPE=Official OCTAVI_DEVICE_MAINTAINER=GeoPD
+     echo "sakura" >> vendor/octavi/octavi.devices
      . build/envsetup.sh && lunch octavi_sakura-userdebug
 }
 
@@ -194,7 +199,7 @@ telegram_post(){
 
 	*Commit SHA:* \`$(commit_sha)\`
 
-	*Date:*  \`$(date +"%d-%m-%Y %T")\`"
+	*Date:*  \`$(date +"%d-%m-%Y %T")\`" &> /dev/null
  else
 	BUILD_LOG=$(pwd)/build.log
 	tail -n 10000 ${BUILD_LOG} >> $(pwd)/buildtrim.txt
@@ -206,7 +211,7 @@ telegram_post(){
 	*❌ Build failed to compile after $(($DIFF / 3600)) hour(s) and $(($DIFF % 3600 / 60)) minute(s) and $(($DIFF % 60)) seconds*
 	Build Log: ${TRANSFER}
 
-	_Date:  $(date +"%d-%m-%Y %T")_"
+	_Date:  $(date +"%d-%m-%Y %T")_" &> /dev/null
  fi
 }
 
