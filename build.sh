@@ -47,7 +47,6 @@ rom_two(){
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
      wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk # temp haxxs
      export OCTAVI_BUILD_TYPE=Official OCTAVI_DEVICE_MAINTAINER=GeoPD
-     echo "sakura" >> vendor/octavi/octavi.devices
      . build/envsetup.sh && lunch octavi_sakura-userdebug
 }
 
