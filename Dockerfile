@@ -18,6 +18,10 @@ RUN axel -a -n 10 https://ftp.gnu.org/gnu/make/make-4.3.tar.gz \
     && bash ./build.sh \
     && sudo install ./make /usr/local/bin/make
 
+RUN git clone https://github.com/ninja-build/ninja.git \
+    && cd ninja && ./configure.py --bootstrap \
+    && sudo install ./ninja /usr/local/bin/ninja
+
 RUN axel -a -n 10 https://github.com/facebook/zstd/releases/download/v1.5.0/zstd-1.5.0.tar.gz \
     && tar xvzf zstd-1.5.0.tar.gz && cd zstd-1.5.0 \
     && sudo make install

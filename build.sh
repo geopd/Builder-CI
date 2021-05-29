@@ -3,8 +3,6 @@
 mkdir -p /tmp/rom
 cd /tmp/rom
 
-HOSTNAME="mysto"
-
 # export sync start time
 SYNC_START=$(date +"%s")
 
@@ -23,13 +21,7 @@ rclone copy brrbrr:ssh/ssh_ci /tmp
 sudo chmod 0600 /tmp/ssh_ci
 sudo mkdir ~/.ssh && sudo chmod 0700 ~/.ssh
 eval `ssh-agent -s` && ssh-add /tmp/ssh_ci
-sudo echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==" >> ~/.ssh/known_hosts
-
-
-# Tmate session in case of build errors
-tmate -S $HOME/.tmate.sock new-session -d
-tmate -S $HOME/.tmate.sock wait tmate-ready
-echo "$(tmate -S $HOME/.tmate.sock display -p '#{tmate_ssh}')" > ~/.ssh_id
+ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 
 # Rom repo sync & dt ( Add roms and update case functions )
@@ -46,7 +38,7 @@ rom_two(){
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
      wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk # temp haxxs
-     export OCTAVI_BUILD_TYPE=Official OCTAVI_DEVICE_MAINTAINER=GeoPD WITH_GAPPS=true
+     export OCTAVI_BUILD_TYPE=Official OCTAVI_DEVICE_MAINTAINER=GeoPD
      . build/envsetup.sh && lunch octavi_sakura-userdebug
 }
 
@@ -76,9 +68,22 @@ rom_four(){
 
 rom_five(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
-     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
+     export DOT_OFFICIAL=true
      . build/envsetup.sh && lunch dot_sakura-user
+}
+
+rom_six(){
+     repo init --depth=1 --no-repo-verify -u https://github.com/AOSPA/manifest -b ruby -g default,-device,-mips,-darwin,-notdefault
+     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
+     git config --global url.https://source.codeaurora.org.insteadOf git://codeaurora.org
+     curl -L http://source.codeaurora.org/platform/manifest/clone.bundle > /dev/null
+     sed -i 's/source.codeaurora.org/oregon.source.codeaurora.org/g' .repo/manifests/default.xml
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
+     sed -i '104 i \\t"ccache":  Allowed,' build/soong/ui/build/paths/config.go
+     export SELINUX_IGNORE_NEVERALLOWS=true
+     export SKIP_ABI_CHECKS=true
+     . build/envsetup.sh && lunch pa_sakura-userdebug
 }
 
 
@@ -88,6 +93,7 @@ telegram_message() {
 	-d "parse_mode=Markdown" \
 	-d text="$1"
 }
+
 
 telegram_build() {
 	curl --progress-bar -F document=@"$1" "https://api.telegram.org/bot${BOTTOKEN}/sendDocument" \
@@ -119,6 +125,8 @@ case "${rom}" in
     ;;
  "dotOS-TEST") rom_five
     ;;
+ "AOSPA") rom_six
+    ;;
  *) echo "Invalid option!"
     exit 1
     ;;
@@ -134,7 +142,6 @@ SDIFF=$((SYNC_END - SYNC_START))
 telegram_message "
 	*🌟 $rom Build Triggered 🌟*
 	*Date:* \`$(date +"%d-%m-%Y %T")\`
-	*SSH ID:* \`$(cat ~/.ssh_id)\`
 	*✅ Sync finished after $((SDIFF / 60)) minute(s) and $((SDIFF % 60)) seconds*"  &> /dev/null
 
 
@@ -146,9 +153,9 @@ BUILD_START=$(date +"%s")
 export CCACHE_DIR=/tmp/ccache
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
-export CCACHE_MAXSIZE=30G
+export CCACHE_MAXSIZE=50G
 export CCACHE_COMPRESS=true
-export CCACHE_COMPRESSLEVEL=3
+export CCACHE_COMPRESSLEVEL=1
 ccache -z
 
 
@@ -162,7 +169,9 @@ case "${rom}" in
     ;;
  "RR") mka bacon -j18 2>&1 | tee build.log
     ;;
- "dotOS-TEST") make bacon -j18 2>&1 | tee build.log
+ "dotOS-TEST") make bacon -j18 && make dist -j18 2>&1 | tee build.log
+    ;;
+ "AOSPA") m bacon -j7 2>&1 | tee build.log
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -180,7 +189,6 @@ ZIP=$(find $(pwd)/out/target/product/sakura/ -maxdepth 1 -name "*sakura*.zip" | 
 ZIPNAME=$(basename ${ZIP})
 ZIPSIZE=$(du -sh ${ZIP} |  awk '{print $1}')
 echo "${ZIP}"
-
 
 
 # Post Build finished with Time,duration,md5,size&Tdrive link OR post build_error&trimmed build.log in TG
