@@ -36,7 +36,7 @@ echo "$(tmate -S $HOME/.tmate.sock display -p '#{tmate_ssh}')" > ~/.ssh_id
 rom_one(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
      export DOT_OFFICIAL=true
      . build/envsetup.sh && lunch dot_sakura-user
 }
@@ -44,7 +44,7 @@ rom_one(){
 rom_two(){
      repo init --depth=1 --no-repo-verify -u https://github.com/Octavi-OS/platform_manifest.git -b maintainers -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
      wget https://raw.githubusercontent.com/geopd/misc/master/common-vendor.mk && mv common-vendor.mk vendor/gapps/common/common-vendor.mk # temp haxxs
      export OCTAVI_BUILD_TYPE=Official OCTAVI_DEVICE_MAINTAINER=GeoPD WITH_GAPPS=true
      . build/envsetup.sh && lunch octavi_sakura-userdebug
@@ -56,9 +56,10 @@ rom_three(){
      git config --global url.https://source.codeaurora.org.insteadOf git://codeaurora.org
      curl -L http://source.codeaurora.org/platform/manifest/clone.bundle > /dev/null
      sed -i 's/source.codeaurora.org/oregon.source.codeaurora.org/g' .repo/manifests/default.xml
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
      wget https://raw.githubusercontent.com/geopd/misc/master/gms-vendor.mk && mv gms-vendor.mk vendor/google/gms/gms-vendor.mk
      sed -i '107 i \\t"ccache":  Allowed,' build/soong/ui/build/paths/config.go
+     sed -i '91s/error/warning/g' system/sepolicy/Android.mk
      export SELINUX_IGNORE_NEVERALLOWS=true
      export SKIP_ABI_CHECKS=true
      source build/envsetup.sh && lunch p404_sakura-user
@@ -67,7 +68,7 @@ rom_three(){
 rom_four(){
      repo init --depth=1 --no-repo-verify -u https://github.com/ResurrectionRemix/platform_manifest.git -b Q -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
      sed -i '79 i \\t"ccache":  Allowed,' build/soong/ui/build/paths/config.go
      export RR_BUILDTYPE=Official
      . build/envsetup.sh && lunch rr_sakura-userdebug
@@ -76,7 +77,7 @@ rom_four(){
 rom_five(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
-     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
      . build/envsetup.sh && lunch dot_sakura-user
 }
 
@@ -157,7 +158,7 @@ case "${rom}" in
     ;;
  "OctaviOS") mka octavi -j18 2>&1 | tee build.log
     ;;
- "P404") m system-api-stubs-docs test-api-stubs-docs && m bacon -j18 2>&1 | tee build.log
+ "P404") m p404 -j18 2>&1 | tee build.log
     ;;
  "RR") mka bacon -j18 2>&1 | tee build.log
     ;;
