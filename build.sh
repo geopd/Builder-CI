@@ -171,7 +171,7 @@ case "${rom}" in
     ;;
  "dotOS-TEST") make bacon -j18 && make dist -j18 2>&1 | tee build.log
     ;;
- "AOSPA") m bacon -j7 2>&1 | tee build.log
+ "AOSPA") m bacon -j10 2>&1 | tee build.log
     ;;
  *) echo "Invalid option!"
     exit 1
