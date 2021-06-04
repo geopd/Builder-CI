@@ -16,11 +16,15 @@ RUN apt-get -yqq update \
 RUN axel -a -n 10 https://ftp.gnu.org/gnu/make/make-4.3.tar.gz \
     && tar xvzf make-4.3.tar.gz && cd make-4.3 && ./configure \
     && bash ./build.sh \
-    && sudo install ./make /usr/local/bin/make
+    && sudo install ./make /usr/bin/make
 
 RUN git clone https://github.com/ninja-build/ninja.git \
-    && cd ninja && ./configure.py --bootstrap \
-    && sudo install ./ninja /usr/local/bin/ninja
+    && cd ninja && git reset --hard 8fa4d05 && ./configure.py --bootstrap \
+    && sudo install ./ninja /usr/bin/ninja
+
+RUN git clone https://github.com/google/kati.git \
+    && cd kati && git reset --hard e1d6ee2 && make ckati \
+    && sudo install ./ckati /usr/bin/ckati
 
 RUN axel -a -n 10 https://github.com/facebook/zstd/releases/download/v1.5.0/zstd-1.5.0.tar.gz \
     && tar xvzf zstd-1.5.0.tar.gz && cd zstd-1.5.0 \
