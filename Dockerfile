@@ -13,9 +13,8 @@ RUN apt-get -yqq update \
     && TZ=Asia/Kolkata \
     && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN axel -a -n 10 https://ftp.gnu.org/gnu/make/make-4.3.tar.gz \
-    && tar xvzf make-4.3.tar.gz && cd make-4.3 && ./configure \
-    && bash ./build.sh \
+RUN git clone https://github.com/mirror/make \
+    && cd make && ./bootstrap && ./configure && make CFLAGS="-O3" \
     && sudo install ./make /usr/bin/make
 
 RUN git clone https://github.com/ninja-build/ninja.git \
