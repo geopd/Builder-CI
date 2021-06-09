@@ -15,11 +15,7 @@ task:
     TDRIVE: "ENCRYPTED[a652c76e8daec21a619b56878ccad3c268174d0400e4f46a79d41fc4c643a4f401a1a5512d292b8e7813c28c0dcbf4c8]"
     rom: "AOSPA"
   download_ccache_background_script:
-      - echo $(date +"%d-%m-%Y %T")
-      - cd /tmp && mkdir -p ~/.config/rclone
-      - echo "$rclone_config" > ~/.config/rclone/rclone.conf
-      - rclone copy brrbrr:ccache/$rom/ccache.tar.zst /tmp -P && tar -xaf ccache.tar.zst
-      - rm -rf ccache.tar.zst
+      - bash download_ccache.sh
   upload_ccache_background_script:
       - bash upload_ccache.sh
   build_script:

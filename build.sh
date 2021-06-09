@@ -81,9 +81,8 @@ rom_six(){
      sed -i 's/source.codeaurora.org/oregon.source.codeaurora.org/g' .repo/manifests/default.xml
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
      sed -i '104 i \\t"ccache":  Allowed,' build/soong/ui/build/paths/config.go
-     export SELINUX_IGNORE_NEVERALLOWS=true
      export SKIP_ABI_CHECKS=true
-     . build/envsetup.sh && lunch pa_sakura-userdebug
+     . build/envsetup.sh && lunch pa_sakura-user
 }
 
 
@@ -153,9 +152,10 @@ BUILD_START=$(date +"%s")
 export CCACHE_DIR=/tmp/ccache
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
-export CCACHE_MAXSIZE=50G
 export CCACHE_COMPRESS=true
 export CCACHE_COMPRESSLEVEL=1
+export CCACHE_LIMIT_MULTIPLE=0.9
+export CCACHE_MAXSIZE=50G
 ccache -z
 
 
@@ -169,7 +169,7 @@ case "${rom}" in
     ;;
  "RR") mka bacon -j18 2>&1 | tee build.log
     ;;
- "dotOS-TEST") make bacon -j18 && make dist -j18 2>&1 | tee build.log
+ "dotOS-TEST") m dist -j10 2>&1 | tee build.log
     ;;
  "AOSPA") m bacon -j10 2>&1 | tee build.log
     ;;
