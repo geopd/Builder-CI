@@ -86,6 +86,15 @@ rom_six(){
      . build/envsetup.sh && lunch pa_sakura-user
 }
 
+recovery_one(){
+     repo init --depth=1 --no-repo-verify -u https://gitlab.com/OrangeFox/Manifest.git -b fox_9.0 -g default,-device,-mips,-darwin,-notdefault
+     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
+     sudo ln -s /bin/python2.7 /usr/bin/python
+     export ALLOW_MISSING_DEPENDENCIES=true
+     source build/envsetup.sh && lunch omni_sakura-eng
+}
+
 
 # setup TG message and build posts
 telegram_message() {
@@ -126,6 +135,8 @@ case "${rom}" in
  "dotOS-TEST") rom_five
     ;;
  "AOSPA") rom_six
+    ;;
+ "OFOX") recovery_one
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -173,6 +184,8 @@ case "${rom}" in
  "dotOS-TEST") m bacon -j10 2>&1 | tee build.log
     ;;
  "AOSPA") m bacon -j10 2>&1 | tee build.log
+    ;;
+ "OFOX") make recoveryimage -j10 2>&1 | tee build.log
     ;;
  *) echo "Invalid option!"
     exit 1
