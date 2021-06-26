@@ -115,7 +115,7 @@ telegram_build() {
 
 # Branch name & Head commit sha for ease of tracking
 commit_sha() {
-    for repo in device/xiaomi/sakura vendor/xiaomi kernel/xiaomi/msm8953
+    for repo in device/xiaomi/${T_DEVICE} vendor/xiaomi kernel/xiaomi/msm8953
     do
 	printf "[$(echo $repo | cut -d'/' -f1 )/$(git -C ./$repo/.git rev-parse --short=10 HEAD)]"
     done
@@ -193,13 +193,13 @@ case "${rom}" in
 esac
 
 
-ls -a $(pwd)/out/target/product/sakura/ # show /out contents
+ls -a $(pwd)/out/target/product/${T_DEVICE}/ # show /out contents
 BUILD_END=$(date +"%s")
 DIFF=$((BUILD_END - BUILD_START))
 
 
 # sorting final zip ( commonized considering ota zips, .md5sum etc with similiar names  in diff roms)
-ZIP=$(find $(pwd)/out/target/product/sakura/ -maxdepth 1 -name "*sakura*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
+ZIP=$(find $(pwd)/out/target/product/${T_DEVICE}/ -maxdepth 1 -name "*${T_DEVICE}*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
 ZIPNAME=$(basename ${ZIP})
 ZIPSIZE=$(du -sh ${ZIP} |  awk '{print $1}')
 echo "${ZIP}"
@@ -207,7 +207,7 @@ echo "${ZIP}"
 
 # Post Build finished with Time,duration,md5,size&Tdrive link OR post build_error&trimmed build.log in TG
 telegram_post(){
- if [ -f $(pwd)/out/target/product/sakura/${ZIPNAME} ]; then
+ if [ -f $(pwd)/out/target/product/${T_DEVICE}/${ZIPNAME} ]; then
 	rclone copy ${ZIP} brrbrr:rom -P
 	MD5CHECK=$(md5sum ${ZIP} | cut -d' ' -f1)
 	DWD=${TDRIVE}${ZIPNAME}

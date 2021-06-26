@@ -3,7 +3,7 @@
 cd /tmp
 
 # sorting final zip
-ZIP=$(find $(pwd)/rom/out/target/product/sakura/ -maxdepth 1 -name "*sakura*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
+ZIP=$(find $(pwd)/rom/out/target/product/${T_DEVICE}/ -maxdepth 1 -name "*${T_DEVICE}*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
 ZIPNAME=$(basename ${ZIP})
 
 
@@ -18,7 +18,7 @@ zst_tar ()
 # Let session sleep on error for debug
 sleep_on_error()
 {
- if [ -f $(pwd)/rom/out/target/product/sakura/${ZIPNAME} ]; then
+ if [ -f $(pwd)/rom/out/target/product/${T_DEVICE}/${ZIPNAME} ]; then
 	zst_tar ccache
  else
 	zst_tar ccache
