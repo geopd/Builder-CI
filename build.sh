@@ -90,9 +90,8 @@ recovery_one(){
      repo init --depth=1 --no-repo-verify -u https://gitlab.com/OrangeFox/Manifest.git -b fox_9.0 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
-     sudo ln -s /bin/python2.7 /usr/bin/python
      export ALLOW_MISSING_DEPENDENCIES=true
-     source build/envsetup.sh && lunch omni_sakura-eng
+     source build/envsetup.sh && lunch omni_daisa-eng
 }
 
 
