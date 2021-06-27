@@ -70,8 +70,8 @@ rom_five(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
-     export DOT_OFFICIAL=true SKIP_ABI_CHECKS=true
-     . build/envsetup.sh && lunch dot_sakura-user
+     export SKIP_ABI_CHECKS=true
+     . build/envsetup.sh && lunch dot_daisa-user
 }
 
 rom_six(){
@@ -190,7 +190,7 @@ case "${rom}" in
     ;;
  "RR") mka bacon -j18 2>&1 | tee build.log
     ;;
- "dotOS-TEST") m bacon -j10 2>&1 | tee build.log
+ "dotOS-TEST") make bacon -j18 2>&1 | tee build.log
     ;;
  "AOSPA") m bacon -j10 2>&1 | tee build.log
     ;;
