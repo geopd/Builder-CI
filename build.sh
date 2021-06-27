@@ -94,6 +94,14 @@ recovery_one(){
      source build/envsetup.sh && lunch omni_daisa-eng
 }
 
+recovery_two(){
+     repo init --depth=1 --no-repo-verify -u https://gitlab.com/OrangeFox/Manifest.git -b fox_9.0 -g default,-device,-mips,-darwin,-notdefault
+     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
+     export ALLOW_MISSING_DEPENDENCIES=true
+     source build/envsetup.sh && lunch omni_daisa-eng
+}
+
 
 # setup TG message and build posts
 telegram_message() {
@@ -136,6 +144,8 @@ case "${rom}" in
  "AOSPA") rom_six
     ;;
  "OFOX") recovery_one
+    ;;
+ "OFOX2") recovery_two
     ;;
  *) echo "Invalid option!"
     exit 1
@@ -185,6 +195,8 @@ case "${rom}" in
  "AOSPA") m bacon -j10 2>&1 | tee build.log
     ;;
  "OFOX") make recoveryimage -j10 2>&1 | tee build.log
+    ;;
+ "OFOX2") make recoveryimage -j10 2>&1 | tee build.log
     ;;
  *) echo "Invalid option!"
     exit 1
