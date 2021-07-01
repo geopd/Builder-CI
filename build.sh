@@ -70,7 +70,7 @@ rom_five(){
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
      export SKIP_ABI_CHECKS=true
-     . build/envsetup.sh && lunch dot_daisa-user
+     . build/envsetup.sh && lunch dot_sakura-user
 }
 
 rom_six(){
