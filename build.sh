@@ -85,6 +85,15 @@ rom_six(){
      . build/envsetup.sh && lunch pa_sakura-user
 }
 
+rom_seven(){
+     repo init --depth=1 --no-repo-verify -u https://github.com/PotatoProject/manifest -b dumaloo-release
+     git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
+     repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
+     sed -i '79 i \\t"ccache":  Allowed,' build/soong/ui/build/paths/config.go
+     export SKIP_ABI_CHECKS=true
+     source build/envsetup.sh && lunch potato_sakura-userdebug
+}
+
 recovery_one(){
      repo init --depth=1 --no-repo-verify -u https://gitlab.com/OrangeFox/Manifest.git -b fox_9.0 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
@@ -142,6 +151,8 @@ case "${rom}" in
     ;;
  "AOSPA") rom_six
     ;;
+ "POSP") rom_seven
+    ;;
  "OFOX") recovery_one
     ;;
  "OFOX2") recovery_two
@@ -192,6 +203,8 @@ case "${rom}" in
  "dotOS-TEST") make bacon -j18 2>&1 | tee build.log
     ;;
  "AOSPA") m bacon -j10 2>&1 | tee build.log
+    ;;
+ "POSP") make potato -j18 2>&1 | tee build.log
     ;;
  "OFOX") make recoveryimage -j10 2>&1 | tee build.log
     ;;
