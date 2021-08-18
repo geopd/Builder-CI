@@ -5,7 +5,7 @@ echo $(date +"%d-%m-%Y %T")
 ccache_download ()
 {
   mkdir -p ~/.config/rclone
-  echo "$rclone_config" > ~/.config/rclone/rclone.conf
+  echo "$rc_conf" > ~/.config/rclone/rclone.conf
   rclone copy brrbrr:ccache/$rom/ccache.tar.zst /tmp -P
   tar -xaf ccache.tar.zst
   tar "-I zstd -1 -T8" -xf ccache.tar.zst

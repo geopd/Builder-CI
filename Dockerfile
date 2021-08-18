@@ -34,5 +34,9 @@ RUN curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip \
     && sudo cp rclone /usr/bin/ && sudo chown root:root /usr/bin/rclone \
     && sudo chmod 755 /usr/bin/rclone
 
+RUN wget https://github.com/owenthereal/upterm/releases/download/v0.6.5/upterm_linux_amd64.tar.gz \
+    && mkdir upterm && tar -xf upterm_linux_amd64.tar.gz -C upterm \
+    && cd upterm && sudo install ./upterm /usr/bin/upterm
+
 VOLUME ["/tmp/ccache", "/tmp/rom"]
 ENTRYPOINT ["/bin/bash"]
