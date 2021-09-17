@@ -81,6 +81,7 @@ rom_six(){
      sed -i 's/source.codeaurora.org/oregon.source.codeaurora.org/g' .repo/manifests/default.xml
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
      sed -i '104 i \\t"ccache":  Allowed,' build/soong/ui/build/paths/config.go
+     sed -i '199,200d' vendor/pa/build/envsetup.sh
      export SKIP_ABI_CHECKS=true
      . build/envsetup.sh && lunch pa_sakura-user
 }
