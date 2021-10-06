@@ -24,6 +24,15 @@ eval `ssh-agent -s` && ssh-add /tmp/ssh_ci
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 
+# tty-share
+export PATH=$PATH:/root/go/bin
+expect -c "
+spawn tty-share --public
+expect \"Press Enter to continue!\"
+send \"\r\"
+interact" | tee /tmp/tty.txt
+
+
 # Rom repo sync & dt ( Add roms and update case functions )
 rom_one(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
@@ -193,7 +202,11 @@ SDIFF=$((SYNC_END - SYNC_START))
 telegram_message "
 	*🌟 $rom Build Triggered 🌟*
 	*Date:* \`$(date +"%d-%m-%Y %T")\`
+	\`$(sed -n '3p' /tmp/tty.txt | cut -d' ' -f3)\`
 	*✅ Sync finished after $((SDIFF / 60)) minute(s) and $((SDIFF % 60)) seconds*"  &> /dev/null
+
+telegram_build /tmp/tty.txt "
+	_Date:  $(date +"%d-%m-%Y %T")_"
 
 
 # export build start time
