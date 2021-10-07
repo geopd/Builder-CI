@@ -22,6 +22,9 @@ sleep_on_error()
 	zst_tar ccache
  else
 	zst_tar ccache
+	echo "${LMAO_CHECK}" > ~/lmao_check.sh
+	bash ~/lmao_check.sh
+	zst_tar ccache
 	sleep 2h
  fi
 }
