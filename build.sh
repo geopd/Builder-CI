@@ -29,7 +29,7 @@ rom_one(){
      repo init --depth=1 --no-repo-verify -u git://github.com/DotOS/manifest.git -b dot11 -g default,-device,-mips,-darwin,-notdefault
      git clone https://${TOKEN}@github.com/geopd/local_manifests -b $rom .repo/local_manifests
      repo sync -c --no-clone-bundle --no-tags --optimized-fetch --force-sync -j$(nproc --all)
-     export SKIP_ABI_CHECKS=true WITH_GAPPS=true
+     export SKIP_ABI_CHECKS=true
      . build/envsetup.sh && lunch dot_sakura-user
 }
 
